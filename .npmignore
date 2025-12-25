@@ -1,0 +1,19 @@
+# Dev files
+tsconfig.json
+tsconfig.build.json
+.gitignore
+.github/
+
+# Tests
+__tests__/
+__fixtures__/
+__mocks__/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.tgz
+.DS_Store

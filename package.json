@@ -1,0 +1,81 @@
+{
+  "name": "react-native-puff-pop",
+  "version": "1.0.0",
+  "description": "A React Native animation library for revealing children components with beautiful puff and pop effects",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.tsx",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "scripts": {
+    "clean": "del-cli lib",
+    "prepare": "yarn clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "test": "jest"
+  },
+  "keywords": [
+    "react-native",
+    "ios",
+    "android",
+    "expo",
+    "animation",
+    "puff",
+    "pop",
+    "reveal",
+    "transition",
+    "entrance",
+    "effects",
+    "skeleton",
+    "react-native-puff-pop"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liveforownhappiness/react-native-puff-pop.git"
+  },
+  "author": "liveforownhappiness <liveforownhappiness@gmail.com> (https://github.com/liveforownhappiness)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liveforownhappiness/react-native-puff-pop/issues"
+  },
+  "homepage": "https://github.com/liveforownhappiness/react-native-puff-pop#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "del-cli": "^6.0.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  },
+  "create-react-native-library": {
+    "type": "library",
+    "languages": "js",
+    "version": "0.56.0"
+  }
+}
