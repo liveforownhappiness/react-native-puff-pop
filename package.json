@@ -21,6 +21,10 @@
     "!**/.*"
   ],
   "scripts": {
+    "example": "yarn workspace react-native-puff-pop-example",
+    "ios": "yarn workspace react-native-puff-pop-example ios",
+    "android": "yarn workspace react-native-puff-pop-example android",
+    "web": "yarn workspace react-native-puff-pop-example web",
     "clean": "del-cli lib",
     "prepare": "yarn clean && tsc -p tsconfig.build.json",
     "typecheck": "tsc",
@@ -66,6 +70,10 @@
     "react": "*",
     "react-native": "*"
   },
+  "workspaces": [
+    "example"
+  ],
+  "packageManager": "yarn@4.11.0",
   "prettier": {
     "quoteProps": "consistent",
     "singleQuote": true,
