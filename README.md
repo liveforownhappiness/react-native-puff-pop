@@ -2,19 +2,33 @@
 
 A React Native animation library for revealing children components with beautiful puff and pop effects.
 
+Works with both **React Native CLI** and **Expo** projects - no native dependencies required!
+
+![npm](https://img.shields.io/npm/v/react-native-puff-pop)
+![license](https://img.shields.io/npm/l/react-native-puff-pop)
+
+## Demo
+
+<p align="center">
+  <img src="./assets/demo.gif" alt="React Native PuffPop Demo" width="320" />
+</p>
+
 ## Features
 
 - 🎬 **11 Animation Effects**: scale, rotate, fade, slideUp, slideDown, slideLeft, slideRight, bounce, flip, zoom, rotateScale
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
-- 📱 **Cross Platform**: Works on iOS and Android
+- 📱 **Cross Platform**: Works on iOS, Android, and Web
+- 🔧 **TypeScript**: Full TypeScript support with type definitions
 
 ## Installation
 
 ```bash
+# Using npm
 npm install react-native-puff-pop
-# or
+
+# Using yarn
 yarn add react-native-puff-pop
 ```
 
@@ -46,6 +60,11 @@ function App() {
 
 // Rotate while appearing
 <PuffPop effect="rotate">
+  <YourComponent />
+</PuffPop>
+
+// Rotate + Scale combined
+<PuffPop effect="rotateScale" easing="spring">
   <YourComponent />
 </PuffPop>
 
@@ -171,4 +190,3 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
