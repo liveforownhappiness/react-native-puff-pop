@@ -167,10 +167,13 @@ export function PuffPop({
   const animate = useCallback(
     (toVisible: boolean) => {
       const easingFn = getEasing(easing);
+      // When skeleton is false, we animate height which doesn't support native driver
+      // So we must use JS driver for all animations in that case
+      const useNative = skeleton;
       const config = {
         duration,
         easing: easingFn,
-        useNativeDriver: skeleton,
+        useNativeDriver: useNative,
       };
 
       const animations: Animated.CompositeAnimation[] = [];

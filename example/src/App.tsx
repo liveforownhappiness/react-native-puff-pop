@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import { PuffPop, type PuffPopEffect } from 'react-native-puff-pop';
 
@@ -22,6 +23,48 @@ const EFFECTS: PuffPopEffect[] = [
   'rotateScale',
 ];
 
+// Wrapper component for tappable replay
+function TappablePuffPop({
+  id,
+  effect,
+  delay,
+  duration,
+  skeleton,
+  easing,
+  globalKey,
+  children,
+}: {
+  id: string;
+  effect: PuffPopEffect;
+  delay?: number;
+  duration?: number;
+  skeleton: boolean;
+  easing?: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut' | 'spring' | 'bounce';
+  globalKey: number;
+  children: React.ReactNode;
+}) {
+  const [localKey, setLocalKey] = useState(0);
+
+  const handleTap = useCallback(() => {
+    setLocalKey((prev) => prev + 1);
+  }, []);
+
+  return (
+    <Pressable onPress={handleTap}>
+      <PuffPop
+        key={`${id}-${globalKey}-${localKey}-${skeleton}`}
+        effect={effect}
+        delay={delay}
+        duration={duration}
+        skeleton={skeleton}
+        easing={easing}
+      >
+        {children}
+      </PuffPop>
+    </Pressable>
+  );
+}
+
 export default function App() {
   const [key, setKey] = useState(0);
   const [skeletonMode, setSkeletonMode] = useState(true);
@@ -36,7 +79,7 @@ export default function App() {
       contentContainerStyle={styles.container}
     >
       <Text style={styles.title}>React Native PuffPop</Text>
-      <Text style={styles.subtitle}>🎉 Entrance Animation Effects</Text>
+      <Text style={styles.subtitle}>🎉 Tap any item to replay!</Text>
 
       {/* Control Buttons */}
       <View style={styles.controlRow}>
@@ -63,17 +106,68 @@ export default function App() {
           : 'Height expands from 0, pushing content below'}
       </Text>
 
+      {/* Combined Effects: Rotate + Scale */}
+      <Text style={styles.sectionTitle}>Combined: Rotate + Scale</Text>
+      <View style={styles.combinedContainer}>
+        <TappablePuffPop
+          id="combined-1"
+          effect="rotateScale"
+          delay={0}
+          duration={800}
+          skeleton={skeletonMode}
+          easing="spring"
+          globalKey={key}
+        >
+          <View style={[styles.combinedBox, styles.combinedBox1]}>
+            <Text style={styles.combinedIcon}>🌀</Text>
+            <Text style={styles.combinedText}>Spring</Text>
+          </View>
+        </TappablePuffPop>
+
+        <TappablePuffPop
+          id="combined-2"
+          effect="rotateScale"
+          delay={150}
+          duration={800}
+          skeleton={skeletonMode}
+          easing="easeOut"
+          globalKey={key}
+        >
+          <View style={[styles.combinedBox, styles.combinedBox2]}>
+            <Text style={styles.combinedIcon}>🎯</Text>
+            <Text style={styles.combinedText}>EaseOut</Text>
+          </View>
+        </TappablePuffPop>
+
+        <TappablePuffPop
+          id="combined-3"
+          effect="rotateScale"
+          delay={300}
+          duration={800}
+          skeleton={skeletonMode}
+          easing="bounce"
+          globalKey={key}
+        >
+          <View style={[styles.combinedBox, styles.combinedBox3]}>
+            <Text style={styles.combinedIcon}>🎪</Text>
+            <Text style={styles.combinedText}>Bounce</Text>
+          </View>
+        </TappablePuffPop>
+      </View>
+
       {/* All Animation Effects */}
       <Text style={styles.sectionTitle}>Animation Effects</Text>
 
       {EFFECTS.map((effect, index) => (
-        <PuffPop
-          key={`${effect}-${key}`}
+        <TappablePuffPop
+          key={effect}
+          id={effect}
           effect={effect}
           delay={index * 100}
           duration={500}
           skeleton={skeletonMode}
           easing={effect === 'bounce' ? 'bounce' : 'easeOut'}
+          globalKey={key}
         >
           <View style={styles.effectCard}>
             <Text style={styles.effectIcon}>{getEffectIcon(effect)}</Text>
@@ -82,66 +176,71 @@ export default function App() {
               <Text style={styles.effectDesc}>{getEffectDescription(effect)}</Text>
             </View>
           </View>
-        </PuffPop>
+        </TappablePuffPop>
       ))}
 
       {/* Staggered Animation Example */}
       <Text style={styles.sectionTitle}>Staggered Animation</Text>
       <View style={styles.staggerContainer}>
         {[0, 1, 2, 3, 4].map((i) => (
-          <PuffPop
-            key={`stagger-${i}-${key}`}
+          <TappablePuffPop
+            key={`stagger-${i}`}
+            id={`stagger-${i}`}
             effect="scale"
             delay={i * 80}
             duration={400}
             skeleton={skeletonMode}
+            globalKey={key}
           >
             <View style={[styles.staggerBox, { backgroundColor: getColor(i) }]}>
               <Text style={styles.staggerText}>{i + 1}</Text>
             </View>
-          </PuffPop>
+          </TappablePuffPop>
         ))}
       </View>
 
       {/* Card Example */}
       <Text style={styles.sectionTitle}>Card Example</Text>
-      <PuffPop
-        key={`card-${key}`}
+      <TappablePuffPop
+        id="card"
         effect="zoom"
         delay={200}
         duration={600}
         skeleton={skeletonMode}
         easing="spring"
+        globalKey={key}
       >
         <View style={styles.card}>
           <Text style={styles.cardTitle}>✨ Welcome!</Text>
           <Text style={styles.cardText}>
             This card uses the zoom effect with spring easing for a delightful
-            entrance animation. Try different effects by modifying the code!
+            entrance animation. Tap to replay!
           </Text>
-          <TouchableOpacity style={styles.cardButton}>
+          <View style={styles.cardButton}>
             <Text style={styles.cardButtonText}>Get Started</Text>
-          </TouchableOpacity>
+          </View>
         </View>
-      </PuffPop>
+      </TappablePuffPop>
 
       {/* Easing Types */}
       <Text style={styles.sectionTitle}>Easing Types</Text>
       <View style={styles.easingContainer}>
         {(['linear', 'easeIn', 'easeOut', 'easeInOut', 'spring', 'bounce'] as const).map(
           (easing, index) => (
-            <PuffPop
-              key={`easing-${easing}-${key}`}
+            <TappablePuffPop
+              key={`easing-${easing}`}
+              id={`easing-${easing}`}
               effect="scale"
               delay={index * 100}
               duration={600}
               skeleton={skeletonMode}
               easing={easing}
+              globalKey={key}
             >
               <View style={styles.easingBox}>
                 <Text style={styles.easingText}>{easing}</Text>
               </View>
-            </PuffPop>
+            </TappablePuffPop>
           )
         )}
       </View>
@@ -336,6 +435,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  combinedContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  combinedBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  combinedBox1: {
+    backgroundColor: '#e056fd',
+  },
+  combinedBox2: {
+    backgroundColor: '#686de0',
+  },
+  combinedBox3: {
+    backgroundColor: '#30336b',
+  },
+  combinedIcon: {
+    fontSize: 32,
+    marginBottom: 4,
+  },
+  combinedText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   easingContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -357,4 +486,3 @@ const styles = StyleSheet.create({
     height: 60,
   },
 });
-
