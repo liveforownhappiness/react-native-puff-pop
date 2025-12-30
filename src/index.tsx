@@ -101,6 +101,20 @@ export interface PuffPopProps {
    * @default true
    */
   animateOnMount?: boolean;
+
+  /**
+   * Loop the animation
+   * - true: loop infinitely
+   * - number: loop specific number of times
+   * @default false
+   */
+  loop?: boolean | number;
+
+  /**
+   * Delay between loop iterations in milliseconds
+   * @default 0
+   */
+  loopDelay?: number;
 }
 
 /**
@@ -139,6 +153,8 @@ export function PuffPop({
   onAnimationComplete,
   style,
   animateOnMount = true,
+  loop = false,
+  loopDelay = 0,
 }: PuffPopProps): ReactElement {
   // Animation values
   const opacity = useRef(new Animated.Value(animateOnMount ? 0 : 1)).current;
@@ -151,6 +167,7 @@ export function PuffPop({
   const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const hasAnimated = useRef(false);
+  const loopAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   // Handle layout measurement for non-skeleton mode
   const onLayout = useCallback(
@@ -246,18 +263,70 @@ export function PuffPop({
 
       // Run animations with delay
       const parallelAnimation = Animated.parallel(animations);
+
+      // Reset values function for looping
+      const resetValues = () => {
+        opacity.setValue(0);
+        scale.setValue(getInitialScale(effect));
+        rotate.setValue(getInitialRotate(effect));
+        translateX.setValue(getInitialTranslateX(effect));
+        translateY.setValue(getInitialTranslateY(effect));
+        if (!skeleton && measuredHeight !== null) {
+          animatedHeight.setValue(0);
+        }
+      };
+
+      // Build the animation sequence
+      let animation: Animated.CompositeAnimation;
       
       if (delay > 0) {
-        Animated.sequence([
+        animation = Animated.sequence([
           Animated.delay(delay),
           parallelAnimation,
-        ]).start(() => {
-          if (toVisible && onAnimationComplete) {
-            onAnimationComplete();
-          }
-        });
+        ]);
       } else {
-        parallelAnimation.start(() => {
+        animation = parallelAnimation;
+      }
+
+      // Handle loop option
+      if (toVisible && loop) {
+        // Stop any existing loop animation
+        if (loopAnimationRef.current) {
+          loopAnimationRef.current.stop();
+        }
+
+        const loopCount = typeof loop === 'number' ? loop : -1;
+        let currentIteration = 0;
+
+        const runLoop = () => {
+          resetValues();
+          animation.start(({ finished }) => {
+            if (finished) {
+              currentIteration++;
+              if (loopCount === -1 || currentIteration < loopCount) {
+                // Add delay between loops if specified
+                if (loopDelay > 0) {
+                  setTimeout(runLoop, loopDelay);
+                } else {
+                  runLoop();
+                }
+              } else if (onAnimationComplete) {
+                onAnimationComplete();
+              }
+            }
+          });
+        };
+
+        // Store reference and start
+        runLoop();
+      } else {
+        // Stop any existing loop animation
+        if (loopAnimationRef.current) {
+          loopAnimationRef.current.stop();
+          loopAnimationRef.current = null;
+        }
+
+        animation.start(() => {
           if (toVisible && onAnimationComplete) {
             onAnimationComplete();
           }
@@ -278,6 +347,8 @@ export function PuffPop({
       translateX,
       translateY,
       animatedHeight,
+      loop,
+      loopDelay,
     ]
   );
 
@@ -295,6 +366,15 @@ export function PuffPop({
       animate(visible);
     }
   }, [visible, animate]);
+
+  // Cleanup loop animation on unmount
+  useEffect(() => {
+    return () => {
+      if (loopAnimationRef.current) {
+        loopAnimationRef.current.stop();
+      }
+    };
+  }, []);
 
   // For non-skeleton mode, measure first
   if (!skeleton && measuredHeight === null) {

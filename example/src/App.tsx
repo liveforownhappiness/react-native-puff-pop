@@ -33,6 +33,8 @@ function TappablePuffPop({
   easing,
   globalKey,
   children,
+  loop,
+  loopDelay,
 }: {
   id: string;
   effect: PuffPopEffect;
@@ -42,6 +44,8 @@ function TappablePuffPop({
   easing?: 'linear' | 'easeIn' | 'easeOut' | 'easeInOut' | 'spring' | 'bounce';
   globalKey: number;
   children: React.ReactNode;
+  loop?: boolean | number;
+  loopDelay?: number;
 }) {
   const [localKey, setLocalKey] = useState(0);
 
@@ -58,6 +62,8 @@ function TappablePuffPop({
         duration={duration}
         skeleton={skeleton}
         easing={easing}
+        loop={loop}
+        loopDelay={loopDelay}
       >
         {children}
       </PuffPop>
@@ -221,6 +227,51 @@ export default function App() {
           </View>
         </View>
       </TappablePuffPop>
+
+      {/* Loop Animation */}
+      <Text style={styles.sectionTitle}>Loop Animation</Text>
+      <View style={styles.loopContainer}>
+        <PuffPop
+          key={`loop-infinite-${key}-${skeletonMode}`}
+          effect="rotate"
+          duration={1000}
+          skeleton={skeletonMode}
+          loop={true}
+        >
+          <View style={[styles.loopBox, styles.loopBox1]}>
+            <Text style={styles.loopIcon}>🔄</Text>
+            <Text style={styles.loopText}>Infinite</Text>
+          </View>
+        </PuffPop>
+
+        <PuffPop
+          key={`loop-3-${key}-${skeletonMode}`}
+          effect="bounce"
+          duration={600}
+          skeleton={skeletonMode}
+          loop={3}
+          loopDelay={200}
+        >
+          <View style={[styles.loopBox, styles.loopBox2]}>
+            <Text style={styles.loopIcon}>3️⃣</Text>
+            <Text style={styles.loopText}>3 times</Text>
+          </View>
+        </PuffPop>
+
+        <PuffPop
+          key={`loop-delay-${key}-${skeletonMode}`}
+          effect="scale"
+          duration={400}
+          skeleton={skeletonMode}
+          loop={true}
+          loopDelay={800}
+        >
+          <View style={[styles.loopBox, styles.loopBox3]}>
+            <Text style={styles.loopIcon}>⏱️</Text>
+            <Text style={styles.loopText}>With Delay</Text>
+          </View>
+        </PuffPop>
+      </View>
 
       {/* Easing Types */}
       <Text style={styles.sectionTitle}>Easing Types</Text>
@@ -463,6 +514,36 @@ const styles = StyleSheet.create({
   combinedText: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: '600',
+  },
+  loopContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  loopBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loopBox1: {
+    backgroundColor: '#00cec9',
+  },
+  loopBox2: {
+    backgroundColor: '#fdcb6e',
+  },
+  loopBox3: {
+    backgroundColor: '#e17055',
+  },
+  loopIcon: {
+    fontSize: 32,
+    marginBottom: 4,
+  },
+  loopText: {
+    color: '#fff',
+    fontSize: 11,
     fontWeight: '600',
   },
   easingContainer: {

@@ -133,6 +133,25 @@ function App() {
 }
 ```
 
+### Loop Animation
+
+```tsx
+// Loop infinitely
+<PuffPop effect="rotate" loop={true}>
+  <LoadingSpinner />
+</PuffPop>
+
+// Loop 3 times
+<PuffPop effect="bounce" loop={3}>
+  <NotificationBadge />
+</PuffPop>
+
+// Loop with delay between iterations
+<PuffPop effect="scale" loop={true} loopDelay={500}>
+  <PulsingDot />
+</PuffPop>
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -147,6 +166,8 @@ function App() {
 | `animateOnMount` | `boolean` | `true` | Animate when component mounts |
 | `onAnimationComplete` | `() => void` | - | Callback when animation completes |
 | `style` | `ViewStyle` | - | Custom container style |
+| `loop` | `boolean \| number` | `false` | Loop animation (true=infinite, number=times) |
+| `loopDelay` | `number` | `0` | Delay between loop iterations in ms |
 
 ### Animation Effects (`PuffPopEffect`)
 
