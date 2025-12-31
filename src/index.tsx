@@ -434,8 +434,13 @@ export function PuffPop({
   };
 
   // Container style for non-skeleton mode
+  // For rotate effects, use overflow: 'visible' to prevent clipping during rotation
+  const hasRotateEffect = ['rotate', 'rotateScale', 'flip'].includes(effect);
   const containerAnimatedStyle = !skeleton && measuredHeight !== null
-    ? { height: animatedHeight, overflow: 'hidden' as const }
+    ? { 
+        height: animatedHeight, 
+        overflow: hasRotateEffect ? 'visible' as const : 'hidden' as const 
+      }
     : {};
 
   return (
