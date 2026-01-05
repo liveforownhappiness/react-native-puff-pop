@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useMemo,
   type ReactNode,
   type ReactElement,
 } from 'react';
@@ -168,6 +169,30 @@ export function PuffPop({
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const hasAnimated = useRef(false);
   const loopAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const loopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Memoize effect type checks to avoid repeated includes() calls
+  const effectFlags = useMemo(() => ({
+    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(effect),
+    hasRotate: ['rotate', 'rotateScale'].includes(effect),
+    hasFlip: effect === 'flip',
+    hasTranslateX: ['slideLeft', 'slideRight'].includes(effect),
+    hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(effect),
+    hasRotateEffect: ['rotate', 'rotateScale', 'flip'].includes(effect),
+  }), [effect]);
+
+  // Memoize interpolations to avoid recreating on every render
+  const rotateInterpolation = useMemo(() => 
+    rotate.interpolate({
+      inputRange: [-360, 0, 360],
+      outputRange: ['-360deg', '0deg', '360deg'],
+    }), [rotate]);
+
+  const flipInterpolation = useMemo(() => 
+    rotate.interpolate({
+      inputRange: [-180, 0],
+      outputRange: ['-180deg', '0deg'],
+    }), [rotate]);
 
   // Handle layout measurement for non-skeleton mode
   const onLayout = useCallback(
@@ -204,7 +229,7 @@ export function PuffPop({
       );
 
       // Scale animation
-      if (['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(effect)) {
+      if (effectFlags.hasScale) {
         const targetScale = toVisible ? 1 : getInitialScale(effect);
         animations.push(
           Animated.timing(scale, {
@@ -216,7 +241,7 @@ export function PuffPop({
       }
 
       // Rotate animation
-      if (['rotate', 'rotateScale', 'flip'].includes(effect)) {
+      if (effectFlags.hasRotate || effectFlags.hasFlip) {
         const targetRotate = toVisible ? 0 : getInitialRotate(effect);
         animations.push(
           Animated.timing(rotate, {
@@ -227,7 +252,7 @@ export function PuffPop({
       }
 
       // TranslateX animation
-      if (['slideLeft', 'slideRight'].includes(effect)) {
+      if (effectFlags.hasTranslateX) {
         const targetX = toVisible ? 0 : getInitialTranslateX(effect);
         animations.push(
           Animated.timing(translateX, {
@@ -238,7 +263,7 @@ export function PuffPop({
       }
 
       // TranslateY animation
-      if (['slideUp', 'slideDown', 'bounce'].includes(effect)) {
+      if (effectFlags.hasTranslateY) {
         const targetY = toVisible ? 0 : getInitialTranslateY(effect);
         animations.push(
           Animated.timing(translateY, {
@@ -306,7 +331,11 @@ export function PuffPop({
               if (loopCount === -1 || currentIteration < loopCount) {
                 // Add delay between loops if specified
                 if (loopDelay > 0) {
-                  setTimeout(runLoop, loopDelay);
+                  // Clear any existing timeout before setting a new one
+                  if (loopTimeoutRef.current) {
+                    clearTimeout(loopTimeoutRef.current);
+                  }
+                  loopTimeoutRef.current = setTimeout(runLoop, loopDelay);
                 } else {
                   runLoop();
                 }
@@ -338,6 +367,7 @@ export function PuffPop({
       duration,
       easing,
       effect,
+      effectFlags,
       measuredHeight,
       onAnimationComplete,
       opacity,
@@ -367,32 +397,22 @@ export function PuffPop({
     }
   }, [visible, animate]);
 
-  // Cleanup loop animation on unmount
+  // Cleanup loop animation and timeout on unmount
   useEffect(() => {
     return () => {
       if (loopAnimationRef.current) {
         loopAnimationRef.current.stop();
       }
+      if (loopTimeoutRef.current) {
+        clearTimeout(loopTimeoutRef.current);
+      }
     };
   }, []);
 
-  // For non-skeleton mode, measure first
-  if (!skeleton && measuredHeight === null) {
-    return (
-      <View style={styles.measureContainer} onLayout={onLayout}>
-        <View style={styles.hidden}>{children}</View>
-      </View>
-    );
-  }
-
-  // Build transform based on effect
-  const getTransform = () => {
-    const hasScale = ['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(effect);
-    const hasRotate = ['rotate', 'rotateScale'].includes(effect);
-    const hasFlip = effect === 'flip';
-    const hasTranslateX = ['slideLeft', 'slideRight'].includes(effect);
-    const hasTranslateY = ['slideUp', 'slideDown', 'bounce'].includes(effect);
-
+  // Memoize transform array to avoid recreating on every render
+  // IMPORTANT: All hooks must be called before any conditional returns
+  const transform = useMemo(() => {
+    const { hasScale, hasRotate, hasFlip, hasTranslateX, hasTranslateY } = effectFlags;
     const transforms = [];
 
     if (hasScale) {
@@ -400,21 +420,11 @@ export function PuffPop({
     }
 
     if (hasRotate) {
-      transforms.push({
-        rotate: rotate.interpolate({
-          inputRange: [-360, 0, 360],
-          outputRange: ['-360deg', '0deg', '360deg'],
-        }),
-      });
+      transforms.push({ rotate: rotateInterpolation });
     }
 
     if (hasFlip) {
-      transforms.push({
-        rotateY: rotate.interpolate({
-          inputRange: [-180, 0],
-          outputRange: ['-180deg', '0deg'],
-        }),
-      });
+      transforms.push({ rotateY: flipInterpolation });
     }
 
     if (hasTranslateX) {
@@ -426,22 +436,33 @@ export function PuffPop({
     }
 
     return transforms.length > 0 ? transforms : undefined;
-  };
+  }, [effectFlags, scale, rotateInterpolation, flipInterpolation, translateX, translateY]);
 
-  const animatedStyle = {
+  // Memoize animated style
+  const animatedStyle = useMemo(() => ({
     opacity,
-    transform: getTransform(),
-  };
+    transform,
+  }), [opacity, transform]);
 
-  // Container style for non-skeleton mode
-  // For rotate effects, use overflow: 'visible' to prevent clipping during rotation
-  const hasRotateEffect = ['rotate', 'rotateScale', 'flip'].includes(effect);
-  const containerAnimatedStyle = !skeleton && measuredHeight !== null
-    ? { 
+  // Memoize container style for non-skeleton mode
+  const containerAnimatedStyle = useMemo(() => {
+    if (!skeleton && measuredHeight !== null) {
+      return { 
         height: animatedHeight, 
-        overflow: hasRotateEffect ? 'visible' as const : 'hidden' as const 
-      }
-    : {};
+        overflow: effectFlags.hasRotateEffect ? 'visible' as const : 'hidden' as const 
+      };
+    }
+    return {};
+  }, [skeleton, measuredHeight, animatedHeight, effectFlags.hasRotateEffect]);
+
+  // For non-skeleton mode, measure first (after all hooks)
+  if (!skeleton && measuredHeight === null) {
+    return (
+      <View style={styles.measureContainer} onLayout={onLayout}>
+        <View style={styles.hidden}>{children}</View>
+      </View>
+    );
+  }
 
   return (
     <Animated.View style={[styles.container, style, containerAnimatedStyle]}>
