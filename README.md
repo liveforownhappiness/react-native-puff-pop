@@ -164,10 +164,13 @@ function App() {
 | `skeleton` | `boolean` | `true` | Reserve space before animation |
 | `visible` | `boolean` | `true` | Control visibility |
 | `animateOnMount` | `boolean` | `true` | Animate when component mounts |
+| `onAnimationStart` | `() => void` | - | Callback when animation starts |
 | `onAnimationComplete` | `() => void` | - | Callback when animation completes |
 | `style` | `ViewStyle` | - | Custom container style |
 | `loop` | `boolean \| number` | `false` | Loop animation (true=infinite, number=times) |
 | `loopDelay` | `number` | `0` | Delay between loop iterations in ms |
+| `respectReduceMotion` | `boolean` | `true` | Respect system reduce motion setting |
+| `testID` | `string` | - | Test ID for testing purposes |
 
 ### Animation Effects (`PuffPopEffect`)
 
@@ -203,6 +206,22 @@ The component reserves its full space immediately, and only the visual appearanc
 
 ### `skeleton={false}`
 The component's height starts at 0 and expands during animation, pushing other content below it. This creates a more dynamic entrance effect.
+
+## Accessibility
+
+PuffPop respects the system's "Reduce Motion" accessibility setting by default. When users have enabled reduce motion in their device settings, animations will be instant (0 duration) to avoid discomfort.
+
+```tsx
+// Respect reduce motion setting (default)
+<PuffPop respectReduceMotion={true}>
+  <YourComponent />
+</PuffPop>
+
+// Ignore reduce motion setting (always animate)
+<PuffPop respectReduceMotion={false}>
+  <YourComponent />
+</PuffPop>
+```
 
 ## License
 

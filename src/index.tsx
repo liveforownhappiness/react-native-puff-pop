@@ -12,6 +12,7 @@ import {
   Animated,
   StyleSheet,
   Easing,
+  AccessibilityInfo,
   type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
@@ -116,6 +117,23 @@ export interface PuffPopProps {
    * @default 0
    */
   loopDelay?: number;
+
+  /**
+   * Callback when animation starts
+   */
+  onAnimationStart?: () => void;
+
+  /**
+   * Respect system reduce motion accessibility setting
+   * When true and reduce motion is enabled, animations will be instant
+   * @default true
+   */
+  respectReduceMotion?: boolean;
+
+  /**
+   * Test ID for testing purposes
+   */
+  testID?: string;
 }
 
 /**
@@ -152,10 +170,13 @@ export function PuffPop({
   skeleton = true,
   visible = true,
   onAnimationComplete,
+  onAnimationStart,
   style,
   animateOnMount = true,
   loop = false,
   loopDelay = 0,
+  respectReduceMotion = true,
+  testID,
 }: PuffPopProps): ReactElement {
   // Animation values
   const opacity = useRef(new Animated.Value(animateOnMount ? 0 : 1)).current;
@@ -170,6 +191,32 @@ export function PuffPop({
   const hasAnimated = useRef(false);
   const loopAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
   const loopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Reduce motion accessibility support
+  const [isReduceMotionEnabled, setIsReduceMotionEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!respectReduceMotion) return;
+
+    const checkReduceMotion = async () => {
+      const reduceMotion = await AccessibilityInfo.isReduceMotionEnabled();
+      setIsReduceMotionEnabled(reduceMotion);
+    };
+
+    checkReduceMotion();
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setIsReduceMotionEnabled
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [respectReduceMotion]);
+
+  // Effective duration (0 if reduce motion is enabled)
+  const effectiveDuration = respectReduceMotion && isReduceMotionEnabled ? 0 : duration;
 
   // Memoize effect type checks to avoid repeated includes() calls
   const effectFlags = useMemo(() => ({
@@ -208,12 +255,17 @@ export function PuffPop({
   // Animate function
   const animate = useCallback(
     (toVisible: boolean) => {
+      // Call onAnimationStart callback
+      if (toVisible && onAnimationStart) {
+        onAnimationStart();
+      }
+
       const easingFn = getEasing(easing);
       // When skeleton is false, we animate height which doesn't support native driver
       // So we must use JS driver for all animations in that case
       const useNative = skeleton;
       const config = {
-        duration,
+        duration: effectiveDuration,
         easing: easingFn,
         useNativeDriver: useNative,
       };
@@ -279,7 +331,7 @@ export function PuffPop({
         animations.push(
           Animated.timing(animatedHeight, {
             toValue: targetHeight,
-            duration,
+            duration: effectiveDuration,
             easing: easingFn,
             useNativeDriver: false,
           })
@@ -364,12 +416,13 @@ export function PuffPop({
     },
     [
       delay,
-      duration,
+      effectiveDuration,
       easing,
       effect,
       effectFlags,
       measuredHeight,
       onAnimationComplete,
+      onAnimationStart,
       opacity,
       rotate,
       scale,
@@ -465,7 +518,10 @@ export function PuffPop({
   }
 
   return (
-    <Animated.View style={[styles.container, style, containerAnimatedStyle]}>
+    <Animated.View 
+      style={[styles.container, style, containerAnimatedStyle]}
+      testID={testID}
+    >
       <Animated.View style={animatedStyle}>{children}</Animated.View>
     </Animated.View>
   );
