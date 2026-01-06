@@ -1,6 +1,6 @@
 {
   "name": "react-native-puff-pop",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A React Native animation library for revealing children components with beautiful puff and pop effects",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
