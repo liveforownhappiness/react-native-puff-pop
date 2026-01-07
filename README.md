@@ -102,6 +102,35 @@ By default, `skeleton={true}` reserves space for the component before animation:
 
 ### Staggered Animations
 
+Use `PuffPopGroup` for easy staggered animations:
+
+```tsx
+import { PuffPopGroup } from 'react-native-puff-pop';
+
+// Simple stagger
+<PuffPopGroup staggerDelay={100} effect="scale">
+  <Card title="First" />
+  <Card title="Second" />
+  <Card title="Third" />
+</PuffPopGroup>
+
+// With different directions
+<PuffPopGroup staggerDelay={80} staggerDirection="reverse">
+  <Item />
+  <Item />
+  <Item />
+</PuffPopGroup>
+
+// Horizontal layout with gap
+<PuffPopGroup horizontal gap={12} effect="slideUp">
+  <Avatar />
+  <Avatar />
+  <Avatar />
+</PuffPopGroup>
+```
+
+Or use manual delays with `PuffPop`:
+
 ```tsx
 <View>
   <PuffPop delay={0}>
@@ -169,6 +198,28 @@ function App() {
 | `style` | `ViewStyle` | - | Custom container style |
 | `loop` | `boolean \| number` | `false` | Loop animation (true=infinite, number=times) |
 | `loopDelay` | `number` | `0` | Delay between loop iterations in ms |
+| `respectReduceMotion` | `boolean` | `true` | Respect system reduce motion setting |
+| `testID` | `string` | - | Test ID for testing purposes |
+
+### PuffPopGroup Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Children to animate with stagger effect |
+| `effect` | `PuffPopEffect` | `'scale'` | Animation effect for all children |
+| `duration` | `number` | `400` | Animation duration for each child in ms |
+| `staggerDelay` | `number` | `100` | Delay between each child's animation in ms |
+| `initialDelay` | `number` | `0` | Delay before the first child animates in ms |
+| `easing` | `PuffPopEasing` | `'easeOut'` | Easing function for all children |
+| `skeleton` | `boolean` | `true` | Reserve space before animation |
+| `visible` | `boolean` | `true` | Control visibility of all children |
+| `animateOnMount` | `boolean` | `true` | Animate when component mounts |
+| `onAnimationStart` | `() => void` | - | Callback when first child starts animating |
+| `onAnimationComplete` | `() => void` | - | Callback when all children complete |
+| `style` | `ViewStyle` | - | Custom container style |
+| `staggerDirection` | `'forward' \| 'reverse' \| 'center' \| 'edges'` | `'forward'` | Direction of stagger animation |
+| `horizontal` | `boolean` | `false` | Render children in horizontal layout |
+| `gap` | `number` | - | Gap between children |
 | `respectReduceMotion` | `boolean` | `true` | Respect system reduce motion setting |
 | `testID` | `string` | - | Test ID for testing purposes |
 

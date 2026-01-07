@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  Children,
   type ReactNode,
   type ReactElement,
 } from 'react';
@@ -602,7 +603,236 @@ const styles = StyleSheet.create({
   hidden: {
     opacity: 0,
   },
+  groupContainer: {},
 });
+
+/**
+ * Props for PuffPopGroup component
+ */
+export interface PuffPopGroupProps {
+  /**
+   * Children to animate with stagger effect
+   */
+  children: ReactNode;
+
+  /**
+   * Animation effect type applied to all children
+   * @default 'scale'
+   */
+  effect?: PuffPopEffect;
+
+  /**
+   * Base animation duration in milliseconds for each child
+   * @default 400
+   */
+  duration?: number;
+
+  /**
+   * Delay between each child's animation start in milliseconds
+   * @default 100
+   */
+  staggerDelay?: number;
+
+  /**
+   * Initial delay before the first child animates in milliseconds
+   * @default 0
+   */
+  initialDelay?: number;
+
+  /**
+   * Easing function for all children
+   * @default 'easeOut'
+   */
+  easing?: PuffPopEasing;
+
+  /**
+   * If true, reserves space for children before animation
+   * @default true
+   */
+  skeleton?: boolean;
+
+  /**
+   * Whether children are visible
+   * @default true
+   */
+  visible?: boolean;
+
+  /**
+   * Whether to animate on mount
+   * @default true
+   */
+  animateOnMount?: boolean;
+
+  /**
+   * Callback when all children animations complete
+   */
+  onAnimationComplete?: () => void;
+
+  /**
+   * Callback when the first child animation starts
+   */
+  onAnimationStart?: () => void;
+
+  /**
+   * Custom style for the group container
+   */
+  style?: StyleProp<ViewStyle>;
+
+  /**
+   * Respect system reduce motion accessibility setting
+   * @default true
+   */
+  respectReduceMotion?: boolean;
+
+  /**
+   * Test ID for testing purposes
+   */
+  testID?: string;
+
+  /**
+   * Direction of stagger animation
+   * - 'forward': First to last child
+   * - 'reverse': Last to first child
+   * - 'center': From center outward
+   * - 'edges': From edges toward center
+   * @default 'forward'
+   */
+  staggerDirection?: 'forward' | 'reverse' | 'center' | 'edges';
+
+  /**
+   * If true, children are rendered in a row (horizontal layout)
+   * @default false
+   */
+  horizontal?: boolean;
+
+  /**
+   * Gap between children (uses flexbox gap)
+   */
+  gap?: number;
+}
+
+/**
+ * PuffPopGroup - Animate multiple children with staggered entrance effects
+ * 
+ * @example
+ * ```tsx
+ * <PuffPopGroup staggerDelay={100} effect="scale">
+ *   <Card title="First" />
+ *   <Card title="Second" />
+ *   <Card title="Third" />
+ * </PuffPopGroup>
+ * ```
+ */
+export function PuffPopGroup({
+  children,
+  effect = 'scale',
+  duration = 400,
+  staggerDelay = 100,
+  initialDelay = 0,
+  easing = 'easeOut',
+  skeleton = true,
+  visible = true,
+  animateOnMount = true,
+  onAnimationComplete,
+  onAnimationStart,
+  style,
+  respectReduceMotion = true,
+  testID,
+  staggerDirection = 'forward',
+  horizontal = false,
+  gap,
+}: PuffPopGroupProps): ReactElement {
+  const childArray = Children.toArray(children);
+  const childCount = childArray.length;
+  const completedCount = useRef(0);
+  const hasCalledStart = useRef(false);
+
+  // Calculate delay for each child based on stagger direction
+  const getChildDelay = useCallback(
+    (index: number): number => {
+      let delayIndex: number;
+
+      switch (staggerDirection) {
+        case 'reverse':
+          delayIndex = childCount - 1 - index;
+          break;
+        case 'center': {
+          const center = (childCount - 1) / 2;
+          delayIndex = Math.abs(index - center);
+          break;
+        }
+        case 'edges': {
+          const center = (childCount - 1) / 2;
+          delayIndex = center - Math.abs(index - center);
+          break;
+        }
+        case 'forward':
+        default:
+          delayIndex = index;
+          break;
+      }
+
+      return initialDelay + delayIndex * staggerDelay;
+    },
+    [childCount, initialDelay, staggerDelay, staggerDirection]
+  );
+
+  // Handle individual child animation complete
+  const handleChildComplete = useCallback(() => {
+    completedCount.current += 1;
+    if (completedCount.current >= childCount && onAnimationComplete) {
+      onAnimationComplete();
+    }
+  }, [childCount, onAnimationComplete]);
+
+  // Handle first child animation start
+  const handleChildStart = useCallback(() => {
+    if (!hasCalledStart.current && onAnimationStart) {
+      hasCalledStart.current = true;
+      onAnimationStart();
+    }
+  }, [onAnimationStart]);
+
+  // Reset counters when visibility changes
+  useEffect(() => {
+    if (visible) {
+      completedCount.current = 0;
+      hasCalledStart.current = false;
+    }
+  }, [visible]);
+
+  const containerStyle = useMemo(() => {
+    const baseStyle: ViewStyle = {
+      flexDirection: horizontal ? 'row' : 'column',
+    };
+    if (gap !== undefined) {
+      baseStyle.gap = gap;
+    }
+    return baseStyle;
+  }, [horizontal, gap]);
+
+  return (
+    <View style={[styles.groupContainer, containerStyle, style]} testID={testID}>
+      {childArray.map((child, index) => (
+        <PuffPop
+          key={index}
+          effect={effect}
+          duration={duration}
+          delay={getChildDelay(index)}
+          easing={easing}
+          skeleton={skeleton}
+          visible={visible}
+          animateOnMount={animateOnMount}
+          onAnimationComplete={handleChildComplete}
+          onAnimationStart={index === 0 ? handleChildStart : undefined}
+          respectReduceMotion={respectReduceMotion}
+        >
+          {child}
+        </PuffPop>
+      ))}
+    </View>
+  );
+}
 
 export default PuffPop;
 
