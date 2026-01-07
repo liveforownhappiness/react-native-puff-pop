@@ -371,6 +371,12 @@ export function PuffPop({
         // Stop any existing loop animation
         if (loopAnimationRef.current) {
           loopAnimationRef.current.stop();
+          loopAnimationRef.current = null;
+        }
+        // Clear any existing timeout
+        if (loopTimeoutRef.current) {
+          clearTimeout(loopTimeoutRef.current);
+          loopTimeoutRef.current = null;
         }
 
         const loopCount = typeof loop === 'number' ? loop : -1;
@@ -378,6 +384,8 @@ export function PuffPop({
 
         const runLoop = () => {
           resetValues();
+          // Store the current animation reference so it can be stopped
+          loopAnimationRef.current = animation;
           animation.start(({ finished }) => {
             if (finished) {
               currentIteration++;
@@ -392,14 +400,18 @@ export function PuffPop({
                 } else {
                   runLoop();
                 }
-              } else if (onAnimationComplete) {
-                onAnimationComplete();
+              } else {
+                // Loop finished, clear reference
+                loopAnimationRef.current = null;
+                if (onAnimationComplete) {
+                  onAnimationComplete();
+                }
               }
             }
           });
         };
 
-        // Store reference and start
+        // Start the loop
         runLoop();
       } else {
         // Stop any existing loop animation
