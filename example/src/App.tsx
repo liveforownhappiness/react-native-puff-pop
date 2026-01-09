@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
-import { PuffPop, type PuffPopEffect } from 'react-native-puff-pop';
+import { PuffPop, PuffPopGroup, type PuffPopEffect } from 'react-native-puff-pop';
 
 const EFFECTS: PuffPopEffect[] = [
   'scale',
@@ -296,6 +296,150 @@ export default function App() {
         )}
       </View>
 
+      {/* PuffPopGroup Demo */}
+      <Text style={styles.sectionTitle}>PuffPopGroup</Text>
+      <Text style={styles.groupHint}>Auto-staggered animations for multiple children</Text>
+
+      {/* Forward Direction */}
+      <Text style={styles.groupSubtitle}>Forward (default)</Text>
+      <PuffPopGroup
+        key={`group-forward-${key}-${skeletonMode}`}
+        staggerDelay={80}
+        effect="slideUp"
+        duration={400}
+        skeleton={skeletonMode}
+        horizontal
+        gap={10}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox4]}>
+          <Text style={styles.groupNumber}>4</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox5]}>
+          <Text style={styles.groupNumber}>5</Text>
+        </View>
+      </PuffPopGroup>
+
+      {/* Reverse Direction */}
+      <Text style={styles.groupSubtitle}>Reverse</Text>
+      <PuffPopGroup
+        key={`group-reverse-${key}-${skeletonMode}`}
+        staggerDelay={80}
+        staggerDirection="reverse"
+        effect="scale"
+        duration={400}
+        skeleton={skeletonMode}
+        horizontal
+        gap={10}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox4]}>
+          <Text style={styles.groupNumber}>4</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox5]}>
+          <Text style={styles.groupNumber}>5</Text>
+        </View>
+      </PuffPopGroup>
+
+      {/* Center Direction */}
+      <Text style={styles.groupSubtitle}>Center (outward)</Text>
+      <PuffPopGroup
+        key={`group-center-${key}-${skeletonMode}`}
+        staggerDelay={100}
+        staggerDirection="center"
+        effect="zoom"
+        duration={500}
+        easing="spring"
+        skeleton={skeletonMode}
+        horizontal
+        gap={10}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox4]}>
+          <Text style={styles.groupNumber}>4</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox5]}>
+          <Text style={styles.groupNumber}>5</Text>
+        </View>
+      </PuffPopGroup>
+
+      {/* Edges Direction */}
+      <Text style={styles.groupSubtitle}>Edges (inward)</Text>
+      <PuffPopGroup
+        key={`group-edges-${key}-${skeletonMode}`}
+        staggerDelay={100}
+        staggerDirection="edges"
+        effect="fade"
+        duration={400}
+        skeleton={skeletonMode}
+        horizontal
+        gap={10}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox4]}>
+          <Text style={styles.groupNumber}>4</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox5]}>
+          <Text style={styles.groupNumber}>5</Text>
+        </View>
+      </PuffPopGroup>
+
+      {/* Vertical Group */}
+      <Text style={styles.groupSubtitle}>Vertical Layout</Text>
+      <PuffPopGroup
+        key={`group-vertical-${key}-${skeletonMode}`}
+        staggerDelay={100}
+        effect="slideLeft"
+        duration={400}
+        skeleton={skeletonMode}
+        gap={8}
+      >
+        <View style={styles.groupListItem}>
+          <Text style={styles.groupListIcon}>📱</Text>
+          <Text style={styles.groupListText}>First Item</Text>
+        </View>
+        <View style={styles.groupListItem}>
+          <Text style={styles.groupListIcon}>💻</Text>
+          <Text style={styles.groupListText}>Second Item</Text>
+        </View>
+        <View style={styles.groupListItem}>
+          <Text style={styles.groupListIcon}>🎮</Text>
+          <Text style={styles.groupListText}>Third Item</Text>
+        </View>
+      </PuffPopGroup>
+
       <View style={styles.footer} />
     </ScrollView>
   );
@@ -561,6 +705,62 @@ const styles = StyleSheet.create({
   easingText: {
     color: '#fff',
     fontSize: 13,
+    fontWeight: '500',
+  },
+  groupHint: {
+    fontSize: 13,
+    color: '#888',
+    marginBottom: 16,
+  },
+  groupSubtitle: {
+    fontSize: 14,
+    color: '#aaa',
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  groupBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  groupBox1: {
+    backgroundColor: '#FF6B6B',
+  },
+  groupBox2: {
+    backgroundColor: '#4ECDC4',
+  },
+  groupBox3: {
+    backgroundColor: '#45B7D1',
+  },
+  groupBox4: {
+    backgroundColor: '#96CEB4',
+  },
+  groupBox5: {
+    backgroundColor: '#FFEAA7',
+  },
+  groupNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  groupListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
+    borderRadius: 10,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#2d2d44',
+  },
+  groupListIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  groupListText: {
+    fontSize: 15,
+    color: '#fff',
     fontWeight: '500',
   },
   footer: {
