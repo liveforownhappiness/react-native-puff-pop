@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { PuffPop, type PuffPopEffect, type PuffPopEasing } from '../index';
 
 describe('PuffPop', () => {

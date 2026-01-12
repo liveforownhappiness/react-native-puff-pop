@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
 import { PuffPopGroup, type PuffPopEffect } from '../index';
