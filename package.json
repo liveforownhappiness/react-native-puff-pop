@@ -1,6 +1,6 @@
 {
   "name": "react-native-puff-pop",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A React Native animation library for revealing children components with beautiful puff and pop effects",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -60,10 +60,21 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/babel__core": "^7",
+    "@types/babel__preset-env": "^7",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.1.12",
+    "@types/react-test-renderer": "^19.1.0",
     "del-cli": "^6.0.0",
+    "jest": "^30.2.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
+    "react-test-renderer": "19.1.0",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
