@@ -135,6 +135,32 @@ export interface PuffPopProps {
    * Test ID for testing purposes
    */
   testID?: string;
+
+  // ============ Exit Animation Settings ============
+
+  /**
+   * Animation effect type when hiding (exit animation)
+   * If not specified, uses the reverse of the enter effect
+   */
+  exitEffect?: PuffPopEffect;
+
+  /**
+   * Animation duration for exit animation in milliseconds
+   * If not specified, uses the same duration as enter animation
+   */
+  exitDuration?: number;
+
+  /**
+   * Easing function for exit animation
+   * If not specified, uses the same easing as enter animation
+   */
+  exitEasing?: PuffPopEasing;
+
+  /**
+   * Delay before exit animation starts in milliseconds
+   * @default 0
+   */
+  exitDelay?: number;
 }
 
 /**
@@ -178,6 +204,11 @@ export function PuffPop({
   loopDelay = 0,
   respectReduceMotion = true,
   testID,
+  // Exit animation settings
+  exitEffect,
+  exitDuration,
+  exitEasing,
+  exitDelay = 0,
 }: PuffPopProps): ReactElement {
   // Animation values
   const opacity = useRef(new Animated.Value(animateOnMount ? 0 : 1)).current;
@@ -218,16 +249,25 @@ export function PuffPop({
 
   // Effective duration (0 if reduce motion is enabled)
   const effectiveDuration = respectReduceMotion && isReduceMotionEnabled ? 0 : duration;
+  const effectiveExitDuration = respectReduceMotion && isReduceMotionEnabled ? 0 : (exitDuration ?? duration);
+
+  // Helper to get effect flags for any effect type
+  const getEffectFlags = useCallback((eff: PuffPopEffect) => ({
+    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(eff),
+    hasRotate: ['rotate', 'rotateScale'].includes(eff),
+    hasFlip: eff === 'flip',
+    hasTranslateX: ['slideLeft', 'slideRight'].includes(eff),
+    hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(eff),
+    hasRotateEffect: ['rotate', 'rotateScale', 'flip'].includes(eff),
+  }), []);
 
   // Memoize effect type checks to avoid repeated includes() calls
-  const effectFlags = useMemo(() => ({
-    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(effect),
-    hasRotate: ['rotate', 'rotateScale'].includes(effect),
-    hasFlip: effect === 'flip',
-    hasTranslateX: ['slideLeft', 'slideRight'].includes(effect),
-    hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(effect),
-    hasRotateEffect: ['rotate', 'rotateScale', 'flip'].includes(effect),
-  }), [effect]);
+  const effectFlags = useMemo(() => getEffectFlags(effect), [effect, getEffectFlags]);
+  
+  // Exit effect flags (use exitEffect if specified, otherwise same as enter effect)
+  const exitEffectFlags = useMemo(() => 
+    exitEffect ? getEffectFlags(exitEffect) : effectFlags
+  , [exitEffect, getEffectFlags, effectFlags]);
 
   // Memoize interpolations to avoid recreating on every render
   const rotateInterpolation = useMemo(() => 
@@ -261,12 +301,19 @@ export function PuffPop({
         onAnimationStart();
       }
 
-      const easingFn = getEasing(easing);
+      // Determine which effect settings to use based on direction
+      const currentEffect = toVisible ? effect : (exitEffect ?? effect);
+      const currentDuration = toVisible ? effectiveDuration : effectiveExitDuration;
+      const currentEasing = toVisible ? easing : (exitEasing ?? easing);
+      const currentDelay = toVisible ? delay : exitDelay;
+      const currentFlags = toVisible ? effectFlags : exitEffectFlags;
+
+      const easingFn = getEasing(currentEasing);
       // When skeleton is false, we animate height which doesn't support native driver
       // So we must use JS driver for all animations in that case
       const useNative = skeleton;
       const config = {
-        duration: effectiveDuration,
+        duration: currentDuration,
         easing: easingFn,
         useNativeDriver: useNative,
       };
@@ -282,20 +329,20 @@ export function PuffPop({
       );
 
       // Scale animation
-      if (effectFlags.hasScale) {
-        const targetScale = toVisible ? 1 : getInitialScale(effect);
+      if (currentFlags.hasScale) {
+        const targetScale = toVisible ? 1 : getInitialScale(currentEffect);
         animations.push(
           Animated.timing(scale, {
             toValue: targetScale,
             ...config,
-            easing: effect === 'bounce' ? Easing.bounce : easingFn,
+            easing: currentEffect === 'bounce' ? Easing.bounce : easingFn,
           })
         );
       }
 
       // Rotate animation
-      if (effectFlags.hasRotate || effectFlags.hasFlip) {
-        const targetRotate = toVisible ? 0 : getInitialRotate(effect);
+      if (currentFlags.hasRotate || currentFlags.hasFlip) {
+        const targetRotate = toVisible ? 0 : getInitialRotate(currentEffect);
         animations.push(
           Animated.timing(rotate, {
             toValue: targetRotate,
@@ -305,8 +352,8 @@ export function PuffPop({
       }
 
       // TranslateX animation
-      if (effectFlags.hasTranslateX) {
-        const targetX = toVisible ? 0 : getInitialTranslateX(effect);
+      if (currentFlags.hasTranslateX) {
+        const targetX = toVisible ? 0 : getInitialTranslateX(currentEffect);
         animations.push(
           Animated.timing(translateX, {
             toValue: targetX,
@@ -316,8 +363,8 @@ export function PuffPop({
       }
 
       // TranslateY animation
-      if (effectFlags.hasTranslateY) {
-        const targetY = toVisible ? 0 : getInitialTranslateY(effect);
+      if (currentFlags.hasTranslateY) {
+        const targetY = toVisible ? 0 : getInitialTranslateY(currentEffect);
         animations.push(
           Animated.timing(translateY, {
             toValue: targetY,
@@ -332,7 +379,7 @@ export function PuffPop({
         animations.push(
           Animated.timing(animatedHeight, {
             toValue: targetHeight,
-            duration: effectiveDuration,
+            duration: currentDuration,
             easing: easingFn,
             useNativeDriver: false,
           })
@@ -357,9 +404,9 @@ export function PuffPop({
       // Build the animation sequence
       let animation: Animated.CompositeAnimation;
       
-      if (delay > 0) {
+      if (currentDelay > 0) {
         animation = Animated.sequence([
-          Animated.delay(delay),
+          Animated.delay(currentDelay),
           parallelAnimation,
         ]);
       } else {
@@ -430,9 +477,14 @@ export function PuffPop({
     [
       delay,
       effectiveDuration,
+      effectiveExitDuration,
       easing,
       effect,
       effectFlags,
+      exitEffect,
+      exitEffectFlags,
+      exitEasing,
+      exitDelay,
       measuredHeight,
       onAnimationComplete,
       onAnimationStart,
@@ -721,6 +773,32 @@ export interface PuffPopGroupProps {
    * Gap between children (uses flexbox gap)
    */
   gap?: number;
+
+  // ============ Exit Animation Settings ============
+
+  /**
+   * Animation effect type when hiding (exit animation) for all children
+   * If not specified, uses the reverse of the enter effect
+   */
+  exitEffect?: PuffPopEffect;
+
+  /**
+   * Animation duration for exit animation in milliseconds for all children
+   * If not specified, uses the same duration as enter animation
+   */
+  exitDuration?: number;
+
+  /**
+   * Easing function for exit animation for all children
+   * If not specified, uses the same easing as enter animation
+   */
+  exitEasing?: PuffPopEasing;
+
+  /**
+   * Delay before exit animation starts in milliseconds
+   * @default 0
+   */
+  exitDelay?: number;
 }
 
 /**
@@ -753,6 +831,11 @@ export function PuffPopGroup({
   staggerDirection = 'forward',
   horizontal = false,
   gap,
+  // Exit animation settings
+  exitEffect,
+  exitDuration,
+  exitEasing,
+  exitDelay,
 }: PuffPopGroupProps): ReactElement {
   const childArray = Children.toArray(children);
   const childCount = childArray.length;
@@ -838,6 +921,10 @@ export function PuffPopGroup({
           onAnimationComplete={handleChildComplete}
           onAnimationStart={index === 0 ? handleChildStart : undefined}
           respectReduceMotion={respectReduceMotion}
+          exitEffect={exitEffect}
+          exitDuration={exitDuration}
+          exitEasing={exitEasing}
+          exitDelay={exitDelay}
         >
           {child}
         </PuffPop>

@@ -16,6 +16,7 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 ## Features
 
 - 🎬 **11 Animation Effects**: scale, rotate, fade, slideUp, slideDown, slideLeft, slideRight, bounce, flip, zoom, rotateScale
+- 🎯 **Exit Animations**: Different effects for enter and exit animations
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
@@ -181,6 +182,61 @@ function App() {
 </PuffPop>
 ```
 
+### Exit Animation
+
+Use different effects for enter and exit animations:
+
+```tsx
+// Scale in, fade out
+<PuffPop 
+  effect="scale" 
+  exitEffect="fade"
+  visible={isVisible}
+>
+  <Modal />
+</PuffPop>
+
+// Slide up to enter, slide down to exit
+<PuffPop 
+  effect="slideUp" 
+  exitEffect="slideDown"
+  exitDuration={200}
+  visible={isVisible}
+>
+  <Toast />
+</PuffPop>
+
+// Different timing for enter and exit
+<PuffPop 
+  effect="zoom"
+  duration={400}
+  easing="spring"
+  exitEffect="fade"
+  exitDuration={150}
+  exitEasing="easeIn"
+  exitDelay={50}
+  visible={isVisible}
+>
+  <Notification />
+</PuffPop>
+```
+
+With `PuffPopGroup`:
+
+```tsx
+<PuffPopGroup
+  effect="slideUp"
+  exitEffect="fade"
+  exitDuration={150}
+  staggerDelay={50}
+  visible={isVisible}
+>
+  <ListItem />
+  <ListItem />
+  <ListItem />
+</PuffPopGroup>
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -200,6 +256,10 @@ function App() {
 | `loopDelay` | `number` | `0` | Delay between loop iterations in ms |
 | `respectReduceMotion` | `boolean` | `true` | Respect system reduce motion setting |
 | `testID` | `string` | - | Test ID for testing purposes |
+| `exitEffect` | `PuffPopEffect` | - | Animation effect for exit (defaults to enter effect) |
+| `exitDuration` | `number` | - | Duration for exit animation (defaults to duration) |
+| `exitEasing` | `PuffPopEasing` | - | Easing for exit animation (defaults to easing) |
+| `exitDelay` | `number` | `0` | Delay before exit animation starts in ms |
 
 ### PuffPopGroup Props
 
@@ -222,6 +282,10 @@ function App() {
 | `gap` | `number` | - | Gap between children |
 | `respectReduceMotion` | `boolean` | `true` | Respect system reduce motion setting |
 | `testID` | `string` | - | Test ID for testing purposes |
+| `exitEffect` | `PuffPopEffect` | - | Exit animation effect for all children |
+| `exitDuration` | `number` | - | Exit duration for all children |
+| `exitEasing` | `PuffPopEasing` | - | Exit easing for all children |
+| `exitDelay` | `number` | `0` | Exit delay for all children |
 
 ### Animation Effects (`PuffPopEffect`)
 

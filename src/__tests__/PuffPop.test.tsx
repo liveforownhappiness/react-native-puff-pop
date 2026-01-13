@@ -292,4 +292,132 @@ describe('PuffPop', () => {
       expect(screen.getByTestId('default-easing')).toBeTruthy();
     });
   });
+
+  describe('Exit Animation', () => {
+    it('accepts exitEffect prop', () => {
+      render(
+        <PuffPop 
+          effect="scale" 
+          exitEffect="fade" 
+          testID="exit-effect"
+        >
+          <Text>Exit Effect Test</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('exit-effect')).toBeTruthy();
+    });
+
+    it('accepts exitDuration prop', () => {
+      render(
+        <PuffPop 
+          duration={400} 
+          exitDuration={200} 
+          testID="exit-duration"
+        >
+          <Text>Exit Duration Test</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('exit-duration')).toBeTruthy();
+    });
+
+    it('accepts exitEasing prop', () => {
+      render(
+        <PuffPop 
+          easing="easeOut" 
+          exitEasing="easeIn" 
+          testID="exit-easing"
+        >
+          <Text>Exit Easing Test</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('exit-easing')).toBeTruthy();
+    });
+
+    it('accepts exitDelay prop', () => {
+      render(
+        <PuffPop 
+          delay={100} 
+          exitDelay={50} 
+          testID="exit-delay"
+        >
+          <Text>Exit Delay Test</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('exit-delay')).toBeTruthy();
+    });
+
+    it('accepts all exit props together', () => {
+      render(
+        <PuffPop 
+          effect="scale"
+          duration={400}
+          easing="easeOut"
+          delay={100}
+          exitEffect="slideDown"
+          exitDuration={200}
+          exitEasing="easeIn"
+          exitDelay={50}
+          testID="all-exit-props"
+        >
+          <Text>All Exit Props</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('all-exit-props')).toBeTruthy();
+    });
+
+    it('uses different exit effects for enter and exit', () => {
+      const effects: Array<{ enter: PuffPopEffect; exit: PuffPopEffect }> = [
+        { enter: 'scale', exit: 'fade' },
+        { enter: 'slideUp', exit: 'slideDown' },
+        { enter: 'rotate', exit: 'flip' },
+        { enter: 'zoom', exit: 'bounce' },
+      ];
+
+      effects.forEach(({ enter, exit }) => {
+        const { unmount } = render(
+          <PuffPop 
+            effect={enter} 
+            exitEffect={exit} 
+            testID={`enter-${enter}-exit-${exit}`}
+          >
+            <Text>Effect Combo</Text>
+          </PuffPop>
+        );
+
+        expect(screen.getByTestId(`enter-${enter}-exit-${exit}`)).toBeTruthy();
+        unmount();
+      });
+    });
+
+    it('falls back to enter effect when exitEffect is not specified', () => {
+      render(
+        <PuffPop 
+          effect="rotate"
+          testID="no-exit-effect"
+        >
+          <Text>No Exit Effect</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('no-exit-effect')).toBeTruthy();
+    });
+
+    it('falls back to enter duration when exitDuration is not specified', () => {
+      render(
+        <PuffPop 
+          duration={500}
+          testID="no-exit-duration"
+        >
+          <Text>No Exit Duration</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('no-exit-duration')).toBeTruthy();
+    });
+  });
 });

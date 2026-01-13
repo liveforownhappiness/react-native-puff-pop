@@ -340,4 +340,89 @@ describe('PuffPopGroup', () => {
       expect(screen.getByText('All Props 3')).toBeTruthy();
     });
   });
+
+  describe('Exit Animation', () => {
+    it('accepts exitEffect prop', () => {
+      render(
+        <PuffPopGroup 
+          effect="scale" 
+          exitEffect="fade" 
+          testID="group-exit-effect"
+        >
+          <Text>Exit 1</Text>
+          <Text>Exit 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-effect')).toBeTruthy();
+    });
+
+    it('accepts exitDuration prop', () => {
+      render(
+        <PuffPopGroup 
+          duration={400} 
+          exitDuration={200} 
+          testID="group-exit-duration"
+        >
+          <Text>Exit Duration 1</Text>
+          <Text>Exit Duration 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-duration')).toBeTruthy();
+    });
+
+    it('accepts exitEasing prop', () => {
+      render(
+        <PuffPopGroup 
+          easing="easeOut" 
+          exitEasing="easeIn" 
+          testID="group-exit-easing"
+        >
+          <Text>Exit Easing 1</Text>
+          <Text>Exit Easing 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-easing')).toBeTruthy();
+    });
+
+    it('accepts exitDelay prop', () => {
+      render(
+        <PuffPopGroup 
+          exitDelay={100} 
+          testID="group-exit-delay"
+        >
+          <Text>Exit Delay 1</Text>
+          <Text>Exit Delay 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-delay')).toBeTruthy();
+    });
+
+    it('accepts all exit props together', () => {
+      render(
+        <PuffPopGroup 
+          effect="scale"
+          duration={400}
+          easing="easeOut"
+          exitEffect="slideDown"
+          exitDuration={200}
+          exitEasing="easeIn"
+          exitDelay={50}
+          testID="group-all-exit-props"
+        >
+          <Text>All Exit 1</Text>
+          <Text>All Exit 2</Text>
+          <Text>All Exit 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-all-exit-props')).toBeTruthy();
+      expect(screen.getByText('All Exit 1')).toBeTruthy();
+      expect(screen.getByText('All Exit 2')).toBeTruthy();
+      expect(screen.getByText('All Exit 3')).toBeTruthy();
+    });
+  });
 });
