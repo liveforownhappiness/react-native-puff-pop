@@ -17,6 +17,8 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 
 - 🎬 **11 Animation Effects**: scale, rotate, fade, slideUp, slideDown, slideLeft, slideRight, bounce, flip, zoom, rotateScale
 - 🎯 **Exit Animations**: Different effects for enter and exit animations
+- 🔄 **Reverse Mode**: Reverse animation direction with a single prop
+- 🎛️ **Custom Initial Values**: Fine-tune starting opacity, scale, rotation, and position
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
@@ -237,6 +239,68 @@ With `PuffPopGroup`:
 </PuffPopGroup>
 ```
 
+### Custom Initial Values
+
+Fine-tune the starting values of your animations:
+
+```tsx
+// Start from 50% opacity instead of 0
+<PuffPop initialOpacity={0.5}>
+  <Card />
+</PuffPop>
+
+// Start from a larger scale
+<PuffPop effect="scale" initialScale={0.5}>
+  <Avatar />
+</PuffPop>
+
+// Custom slide distance
+<PuffPop effect="slideUp" initialTranslateY={200}>
+  <Modal />
+</PuffPop>
+
+// Combine multiple custom values
+<PuffPop
+  effect="rotateScale"
+  initialOpacity={0.3}
+  initialScale={0.2}
+  initialRotate={-90}
+>
+  <Icon />
+</PuffPop>
+```
+
+### Reverse Mode
+
+Reverse the animation direction:
+
+```tsx
+// slideUp now slides from top instead of bottom
+<PuffPop effect="slideUp" reverse>
+  <Toast />
+</PuffPop>
+
+// slideLeft now slides from left instead of right
+<PuffPop effect="slideLeft" reverse>
+  <Drawer />
+</PuffPop>
+
+// rotate spins clockwise instead of counter-clockwise
+<PuffPop effect="rotate" reverse>
+  <Spinner />
+</PuffPop>
+```
+
+With `PuffPopGroup`:
+
+```tsx
+<PuffPopGroup effect="slideRight" reverse staggerDelay={50}>
+  <MenuItem />
+  <MenuItem />
+  <MenuItem />
+</PuffPopGroup>
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -260,6 +324,12 @@ With `PuffPopGroup`:
 | `exitDuration` | `number` | - | Duration for exit animation (defaults to duration) |
 | `exitEasing` | `PuffPopEasing` | - | Easing for exit animation (defaults to easing) |
 | `exitDelay` | `number` | `0` | Delay before exit animation starts in ms |
+| `initialOpacity` | `number` | - | Custom initial opacity (0-1) |
+| `initialScale` | `number` | - | Custom initial scale value |
+| `initialRotate` | `number` | - | Custom initial rotation in degrees |
+| `initialTranslateX` | `number` | - | Custom initial X translation in pixels |
+| `initialTranslateY` | `number` | - | Custom initial Y translation in pixels |
+| `reverse` | `boolean` | `false` | Reverse animation direction |
 
 ### PuffPopGroup Props
 
@@ -286,6 +356,12 @@ With `PuffPopGroup`:
 | `exitDuration` | `number` | - | Exit duration for all children |
 | `exitEasing` | `PuffPopEasing` | - | Exit easing for all children |
 | `exitDelay` | `number` | `0` | Exit delay for all children |
+| `initialOpacity` | `number` | - | Custom initial opacity for all children |
+| `initialScale` | `number` | - | Custom initial scale for all children |
+| `initialRotate` | `number` | - | Custom initial rotation for all children |
+| `initialTranslateX` | `number` | - | Custom initial X translation for all children |
+| `initialTranslateY` | `number` | - | Custom initial Y translation for all children |
+| `reverse` | `boolean` | `false` | Reverse animation direction for all children |
 
 ### Animation Effects (`PuffPopEffect`)
 

@@ -425,4 +425,86 @@ describe('PuffPopGroup', () => {
       expect(screen.getByText('All Exit 3')).toBeTruthy();
     });
   });
+
+  describe('Custom Initial Values', () => {
+    it('accepts initialOpacity prop', () => {
+      render(
+        <PuffPopGroup initialOpacity={0.5} testID="group-initial-opacity">
+          <Text>Opacity 1</Text>
+          <Text>Opacity 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-initial-opacity')).toBeTruthy();
+    });
+
+    it('accepts initialScale prop', () => {
+      render(
+        <PuffPopGroup initialScale={0.3} testID="group-initial-scale">
+          <Text>Scale 1</Text>
+          <Text>Scale 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-initial-scale')).toBeTruthy();
+    });
+
+    it('accepts all custom initial values', () => {
+      render(
+        <PuffPopGroup
+          initialOpacity={0.2}
+          initialScale={0.4}
+          initialRotate={-30}
+          initialTranslateX={10}
+          initialTranslateY={-10}
+          testID="group-all-initial"
+        >
+          <Text>Init 1</Text>
+          <Text>Init 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-all-initial')).toBeTruthy();
+    });
+  });
+
+  describe('Reverse Mode', () => {
+    it('accepts reverse prop', () => {
+      render(
+        <PuffPopGroup reverse={true} testID="group-reverse">
+          <Text>Reverse 1</Text>
+          <Text>Reverse 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-reverse')).toBeTruthy();
+    });
+
+    it('combines reverse with effect', () => {
+      render(
+        <PuffPopGroup effect="slideUp" reverse={true} testID="group-reverse-slide">
+          <Text>Rev Slide 1</Text>
+          <Text>Rev Slide 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-reverse-slide')).toBeTruthy();
+    });
+
+    it('combines reverse with custom initial values', () => {
+      render(
+        <PuffPopGroup
+          effect="rotate"
+          reverse={true}
+          initialRotate={-45}
+          testID="group-reverse-custom"
+        >
+          <Text>Rev Custom 1</Text>
+          <Text>Rev Custom 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-reverse-custom')).toBeTruthy();
+    });
+  });
 });

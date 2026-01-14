@@ -420,4 +420,159 @@ describe('PuffPop', () => {
       expect(screen.getByTestId('no-exit-duration')).toBeTruthy();
     });
   });
+
+  describe('Custom Initial Values', () => {
+    it('accepts initialOpacity prop', () => {
+      render(
+        <PuffPop initialOpacity={0.5} testID="initial-opacity">
+          <Text>Initial Opacity</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('initial-opacity')).toBeTruthy();
+    });
+
+    it('accepts initialScale prop', () => {
+      render(
+        <PuffPop initialScale={0.2} testID="initial-scale">
+          <Text>Initial Scale</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('initial-scale')).toBeTruthy();
+    });
+
+    it('accepts initialRotate prop', () => {
+      render(
+        <PuffPop initialRotate={-90} testID="initial-rotate">
+          <Text>Initial Rotate</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('initial-rotate')).toBeTruthy();
+    });
+
+    it('accepts initialTranslateX prop', () => {
+      render(
+        <PuffPop initialTranslateX={50} testID="initial-translate-x">
+          <Text>Initial TranslateX</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('initial-translate-x')).toBeTruthy();
+    });
+
+    it('accepts initialTranslateY prop', () => {
+      render(
+        <PuffPop initialTranslateY={-30} testID="initial-translate-y">
+          <Text>Initial TranslateY</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('initial-translate-y')).toBeTruthy();
+    });
+
+    it('accepts all custom initial values together', () => {
+      render(
+        <PuffPop
+          initialOpacity={0.3}
+          initialScale={0.5}
+          initialRotate={-45}
+          initialTranslateX={20}
+          initialTranslateY={-20}
+          testID="all-initial-values"
+        >
+          <Text>All Initial Values</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('all-initial-values')).toBeTruthy();
+    });
+
+    it('combines custom initial values with effect', () => {
+      render(
+        <PuffPop
+          effect="slideUp"
+          initialTranslateY={100}
+          testID="custom-with-effect"
+        >
+          <Text>Custom with Effect</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('custom-with-effect')).toBeTruthy();
+    });
+  });
+
+  describe('Reverse Mode', () => {
+    it('accepts reverse prop', () => {
+      render(
+        <PuffPop reverse={true} testID="reverse-mode">
+          <Text>Reverse Mode</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-mode')).toBeTruthy();
+    });
+
+    it('works with slideUp effect in reverse', () => {
+      render(
+        <PuffPop effect="slideUp" reverse={true} testID="reverse-slide-up">
+          <Text>Reverse Slide Up</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-slide-up')).toBeTruthy();
+    });
+
+    it('works with slideLeft effect in reverse', () => {
+      render(
+        <PuffPop effect="slideLeft" reverse={true} testID="reverse-slide-left">
+          <Text>Reverse Slide Left</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-slide-left')).toBeTruthy();
+    });
+
+    it('works with rotate effect in reverse', () => {
+      render(
+        <PuffPop effect="rotate" reverse={true} testID="reverse-rotate">
+          <Text>Reverse Rotate</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-rotate')).toBeTruthy();
+    });
+
+    it('combines reverse with custom initial values', () => {
+      render(
+        <PuffPop
+          effect="slideUp"
+          reverse={true}
+          initialTranslateY={100}
+          testID="reverse-with-custom"
+        >
+          <Text>Reverse with Custom</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-with-custom')).toBeTruthy();
+    });
+
+    it('combines reverse with exit animation', () => {
+      render(
+        <PuffPop
+          effect="scale"
+          reverse={true}
+          exitEffect="fade"
+          testID="reverse-with-exit"
+        >
+          <Text>Reverse with Exit</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('reverse-with-exit')).toBeTruthy();
+    });
+  });
 });

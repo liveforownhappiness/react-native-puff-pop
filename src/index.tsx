@@ -161,6 +161,49 @@ export interface PuffPopProps {
    * @default 0
    */
   exitDelay?: number;
+
+  // ============ Custom Initial Values ============
+
+  /**
+   * Custom initial opacity value (0-1)
+   * Overrides the default initial opacity for the effect
+   */
+  initialOpacity?: number;
+
+  /**
+   * Custom initial scale value
+   * Overrides the default initial scale for effects like 'scale', 'zoom', 'bounce'
+   */
+  initialScale?: number;
+
+  /**
+   * Custom initial rotation value in degrees
+   * Overrides the default initial rotation for effects like 'rotate', 'rotateScale'
+   */
+  initialRotate?: number;
+
+  /**
+   * Custom initial translateX value in pixels
+   * Overrides the default initial translateX for effects like 'slideLeft', 'slideRight'
+   */
+  initialTranslateX?: number;
+
+  /**
+   * Custom initial translateY value in pixels
+   * Overrides the default initial translateY for effects like 'slideUp', 'slideDown'
+   */
+  initialTranslateY?: number;
+
+  // ============ Reverse Mode ============
+
+  /**
+   * If true, reverses the animation direction
+   * - slideUp becomes slide from top
+   * - slideLeft becomes slide from left
+   * - rotate spins clockwise instead of counter-clockwise
+   * @default false
+   */
+  reverse?: boolean;
 }
 
 /**
@@ -209,13 +252,28 @@ export function PuffPop({
   exitDuration,
   exitEasing,
   exitDelay = 0,
+  // Custom initial values
+  initialOpacity,
+  initialScale,
+  initialRotate,
+  initialTranslateX,
+  initialTranslateY,
+  // Reverse mode
+  reverse = false,
 }: PuffPopProps): ReactElement {
+  // Helper to get initial value with custom override and reverse support
+  const getInitialOpacityValue = () => initialOpacity ?? 0;
+  const getInitialScaleValue = (eff: PuffPopEffect) => initialScale ?? getInitialScale(eff, reverse);
+  const getInitialRotateValue = (eff: PuffPopEffect) => initialRotate ?? getInitialRotate(eff, reverse);
+  const getInitialTranslateXValue = (eff: PuffPopEffect) => initialTranslateX ?? getInitialTranslateX(eff, reverse);
+  const getInitialTranslateYValue = (eff: PuffPopEffect) => initialTranslateY ?? getInitialTranslateY(eff, reverse);
+
   // Animation values
-  const opacity = useRef(new Animated.Value(animateOnMount ? 0 : 1)).current;
-  const scale = useRef(new Animated.Value(animateOnMount ? getInitialScale(effect) : 1)).current;
-  const rotate = useRef(new Animated.Value(animateOnMount ? getInitialRotate(effect) : 0)).current;
-  const translateX = useRef(new Animated.Value(animateOnMount ? getInitialTranslateX(effect) : 0)).current;
-  const translateY = useRef(new Animated.Value(animateOnMount ? getInitialTranslateY(effect) : 0)).current;
+  const opacity = useRef(new Animated.Value(animateOnMount ? getInitialOpacityValue() : 1)).current;
+  const scale = useRef(new Animated.Value(animateOnMount ? getInitialScaleValue(effect) : 1)).current;
+  const rotate = useRef(new Animated.Value(animateOnMount ? getInitialRotateValue(effect) : 0)).current;
+  const translateX = useRef(new Animated.Value(animateOnMount ? getInitialTranslateXValue(effect) : 0)).current;
+  const translateY = useRef(new Animated.Value(animateOnMount ? getInitialTranslateYValue(effect) : 0)).current;
   
   // For non-skeleton mode
   const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
@@ -330,7 +388,7 @@ export function PuffPop({
 
       // Scale animation
       if (currentFlags.hasScale) {
-        const targetScale = toVisible ? 1 : getInitialScale(currentEffect);
+        const targetScale = toVisible ? 1 : getInitialScaleValue(currentEffect);
         animations.push(
           Animated.timing(scale, {
             toValue: targetScale,
@@ -342,7 +400,7 @@ export function PuffPop({
 
       // Rotate animation
       if (currentFlags.hasRotate || currentFlags.hasFlip) {
-        const targetRotate = toVisible ? 0 : getInitialRotate(currentEffect);
+        const targetRotate = toVisible ? 0 : getInitialRotateValue(currentEffect);
         animations.push(
           Animated.timing(rotate, {
             toValue: targetRotate,
@@ -353,7 +411,7 @@ export function PuffPop({
 
       // TranslateX animation
       if (currentFlags.hasTranslateX) {
-        const targetX = toVisible ? 0 : getInitialTranslateX(currentEffect);
+        const targetX = toVisible ? 0 : getInitialTranslateXValue(currentEffect);
         animations.push(
           Animated.timing(translateX, {
             toValue: targetX,
@@ -364,7 +422,7 @@ export function PuffPop({
 
       // TranslateY animation
       if (currentFlags.hasTranslateY) {
-        const targetY = toVisible ? 0 : getInitialTranslateY(currentEffect);
+        const targetY = toVisible ? 0 : getInitialTranslateYValue(currentEffect);
         animations.push(
           Animated.timing(translateY, {
             toValue: targetY,
@@ -391,11 +449,11 @@ export function PuffPop({
 
       // Reset values function for looping
       const resetValues = () => {
-        opacity.setValue(0);
-        scale.setValue(getInitialScale(effect));
-        rotate.setValue(getInitialRotate(effect));
-        translateX.setValue(getInitialTranslateX(effect));
-        translateY.setValue(getInitialTranslateY(effect));
+        opacity.setValue(getInitialOpacityValue());
+        scale.setValue(getInitialScaleValue(effect));
+        rotate.setValue(getInitialRotateValue(effect));
+        translateX.setValue(getInitialTranslateXValue(effect));
+        translateY.setValue(getInitialTranslateYValue(effect));
         if (!skeleton && measuredHeight !== null) {
           animatedHeight.setValue(0);
         }
@@ -595,7 +653,8 @@ export function PuffPop({
 /**
  * Get initial scale value based on effect
  */
-function getInitialScale(effect: PuffPopEffect): number {
+function getInitialScale(effect: PuffPopEffect, _reverse = false): number {
+  // Scale doesn't change with reverse (parameter kept for consistent API)
   switch (effect) {
     case 'scale':
     case 'rotateScale':
@@ -614,14 +673,15 @@ function getInitialScale(effect: PuffPopEffect): number {
 /**
  * Get initial rotate value based on effect
  */
-function getInitialRotate(effect: PuffPopEffect): number {
+function getInitialRotate(effect: PuffPopEffect, reverse = false): number {
+  const multiplier = reverse ? -1 : 1;
   switch (effect) {
     case 'rotate':
-      return -360;
+      return -360 * multiplier;
     case 'rotateScale':
-      return -180;
+      return -180 * multiplier;
     case 'flip':
-      return -180;
+      return -180 * multiplier;
     default:
       return 0;
   }
@@ -630,12 +690,13 @@ function getInitialRotate(effect: PuffPopEffect): number {
 /**
  * Get initial translateX value based on effect
  */
-function getInitialTranslateX(effect: PuffPopEffect): number {
+function getInitialTranslateX(effect: PuffPopEffect, reverse = false): number {
+  const multiplier = reverse ? -1 : 1;
   switch (effect) {
     case 'slideLeft':
-      return 100;
+      return 100 * multiplier;
     case 'slideRight':
-      return -100;
+      return -100 * multiplier;
     default:
       return 0;
   }
@@ -644,14 +705,15 @@ function getInitialTranslateX(effect: PuffPopEffect): number {
 /**
  * Get initial translateY value based on effect
  */
-function getInitialTranslateY(effect: PuffPopEffect): number {
+function getInitialTranslateY(effect: PuffPopEffect, reverse = false): number {
+  const multiplier = reverse ? -1 : 1;
   switch (effect) {
     case 'slideUp':
-      return 50;
+      return 50 * multiplier;
     case 'slideDown':
-      return -50;
+      return -50 * multiplier;
     case 'bounce':
-      return 30;
+      return 30 * multiplier;
     default:
       return 0;
   }
@@ -774,6 +836,41 @@ export interface PuffPopGroupProps {
    */
   gap?: number;
 
+  // ============ Custom Initial Values ============
+
+  /**
+   * Custom initial opacity value (0-1) for all children
+   */
+  initialOpacity?: number;
+
+  /**
+   * Custom initial scale value for all children
+   */
+  initialScale?: number;
+
+  /**
+   * Custom initial rotation value in degrees for all children
+   */
+  initialRotate?: number;
+
+  /**
+   * Custom initial translateX value in pixels for all children
+   */
+  initialTranslateX?: number;
+
+  /**
+   * Custom initial translateY value in pixels for all children
+   */
+  initialTranslateY?: number;
+
+  // ============ Reverse Mode ============
+
+  /**
+   * If true, reverses the animation direction for all children
+   * @default false
+   */
+  reverse?: boolean;
+
   // ============ Exit Animation Settings ============
 
   /**
@@ -831,6 +928,14 @@ export function PuffPopGroup({
   staggerDirection = 'forward',
   horizontal = false,
   gap,
+  // Custom initial values
+  initialOpacity,
+  initialScale,
+  initialRotate,
+  initialTranslateX,
+  initialTranslateY,
+  // Reverse mode
+  reverse,
   // Exit animation settings
   exitEffect,
   exitDuration,
@@ -921,6 +1026,12 @@ export function PuffPopGroup({
           onAnimationComplete={handleChildComplete}
           onAnimationStart={index === 0 ? handleChildStart : undefined}
           respectReduceMotion={respectReduceMotion}
+          initialOpacity={initialOpacity}
+          initialScale={initialScale}
+          initialRotate={initialRotate}
+          initialTranslateX={initialTranslateX}
+          initialTranslateY={initialTranslateY}
+          reverse={reverse}
           exitEffect={exitEffect}
           exitDuration={exitDuration}
           exitEasing={exitEasing}
