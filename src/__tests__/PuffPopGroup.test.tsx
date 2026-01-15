@@ -507,4 +507,43 @@ describe('PuffPopGroup', () => {
       expect(screen.getByTestId('group-reverse-custom')).toBeTruthy();
     });
   });
+
+  describe('Animation Intensity', () => {
+    it('accepts intensity prop', () => {
+      render(
+        <PuffPopGroup intensity={0.5} testID="group-intensity">
+          <Text>Intensity 1</Text>
+          <Text>Intensity 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-intensity')).toBeTruthy();
+    });
+
+    it('applies intensity to all children', () => {
+      render(
+        <PuffPopGroup effect="slideUp" intensity={0.5} testID="group-intensity-slide">
+          <Text>Slide 1</Text>
+          <Text>Slide 2</Text>
+          <Text>Slide 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-intensity-slide')).toBeTruthy();
+      expect(screen.getByText('Slide 1')).toBeTruthy();
+      expect(screen.getByText('Slide 2')).toBeTruthy();
+      expect(screen.getByText('Slide 3')).toBeTruthy();
+    });
+
+    it('combines intensity with reverse', () => {
+      render(
+        <PuffPopGroup effect="slideLeft" intensity={0.3} reverse testID="group-intensity-reverse">
+          <Text>IR 1</Text>
+          <Text>IR 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-intensity-reverse')).toBeTruthy();
+    });
+  });
 });

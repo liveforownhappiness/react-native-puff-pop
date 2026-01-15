@@ -575,4 +575,110 @@ describe('PuffPop', () => {
       expect(screen.getByTestId('reverse-with-exit')).toBeTruthy();
     });
   });
+
+  describe('Animation Intensity', () => {
+    it('accepts intensity prop with default value 1', () => {
+      render(
+        <PuffPop intensity={1} testID="intensity-default">
+          <Text>Intensity Default</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-default')).toBeTruthy();
+    });
+
+    it('accepts intensity prop with value 0.5', () => {
+      render(
+        <PuffPop intensity={0.5} testID="intensity-half">
+          <Text>Intensity Half</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-half')).toBeTruthy();
+    });
+
+    it('accepts intensity prop with value 0', () => {
+      render(
+        <PuffPop intensity={0} testID="intensity-zero">
+          <Text>Intensity Zero</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-zero')).toBeTruthy();
+    });
+
+    it('clamps intensity values above 1 to 1', () => {
+      render(
+        <PuffPop intensity={1.5} testID="intensity-above">
+          <Text>Intensity Above 1</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-above')).toBeTruthy();
+    });
+
+    it('clamps intensity values below 0 to 0', () => {
+      render(
+        <PuffPop intensity={-0.5} testID="intensity-below">
+          <Text>Intensity Below 0</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-below')).toBeTruthy();
+    });
+
+    it('combines intensity with slideUp effect', () => {
+      render(
+        <PuffPop effect="slideUp" intensity={0.5} testID="intensity-slide">
+          <Text>Intensity Slide</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-slide')).toBeTruthy();
+    });
+
+    it('combines intensity with rotate effect', () => {
+      render(
+        <PuffPop effect="rotate" intensity={0.5} testID="intensity-rotate">
+          <Text>Intensity Rotate</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-rotate')).toBeTruthy();
+    });
+
+    it('combines intensity with scale effect', () => {
+      render(
+        <PuffPop effect="scale" intensity={0.5} testID="intensity-scale">
+          <Text>Intensity Scale</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-scale')).toBeTruthy();
+    });
+
+    it('combines intensity with reverse mode', () => {
+      render(
+        <PuffPop effect="slideLeft" intensity={0.3} reverse testID="intensity-reverse">
+          <Text>Intensity Reverse</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-reverse')).toBeTruthy();
+    });
+
+    it('intensity does not affect custom initial values', () => {
+      render(
+        <PuffPop
+          intensity={0.5}
+          initialTranslateY={100}
+          testID="intensity-custom"
+        >
+          <Text>Intensity Custom</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('intensity-custom')).toBeTruthy();
+    });
+  });
 });

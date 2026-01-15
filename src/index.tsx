@@ -204,6 +204,18 @@ export interface PuffPopProps {
    * @default false
    */
   reverse?: boolean;
+
+  // ============ Animation Intensity ============
+
+  /**
+   * Animation intensity multiplier (0-1)
+   * Controls how far/much elements move during animation
+   * - 1 = full animation (default)
+   * - 0.5 = half the movement distance
+   * - 0 = no movement (instant appear)
+   * @default 1
+   */
+  intensity?: number;
 }
 
 /**
@@ -260,13 +272,32 @@ export function PuffPop({
   initialTranslateY,
   // Reverse mode
   reverse = false,
+  // Animation intensity
+  intensity = 1,
 }: PuffPopProps): ReactElement {
-  // Helper to get initial value with custom override and reverse support
+  // Clamp intensity between 0 and 1
+  const clampedIntensity = Math.max(0, Math.min(1, intensity));
+
+  // Helper to get initial value with custom override, reverse, and intensity support
   const getInitialOpacityValue = () => initialOpacity ?? 0;
-  const getInitialScaleValue = (eff: PuffPopEffect) => initialScale ?? getInitialScale(eff, reverse);
-  const getInitialRotateValue = (eff: PuffPopEffect) => initialRotate ?? getInitialRotate(eff, reverse);
-  const getInitialTranslateXValue = (eff: PuffPopEffect) => initialTranslateX ?? getInitialTranslateX(eff, reverse);
-  const getInitialTranslateYValue = (eff: PuffPopEffect) => initialTranslateY ?? getInitialTranslateY(eff, reverse);
+  const getInitialScaleValue = (eff: PuffPopEffect) => {
+    if (initialScale !== undefined) return initialScale;
+    const baseScale = getInitialScale(eff, reverse);
+    // Scale goes from baseScale to 1, so we interpolate: 1 - (1 - baseScale) * intensity
+    return 1 - (1 - baseScale) * clampedIntensity;
+  };
+  const getInitialRotateValue = (eff: PuffPopEffect) => {
+    if (initialRotate !== undefined) return initialRotate;
+    return getInitialRotate(eff, reverse) * clampedIntensity;
+  };
+  const getInitialTranslateXValue = (eff: PuffPopEffect) => {
+    if (initialTranslateX !== undefined) return initialTranslateX;
+    return getInitialTranslateX(eff, reverse) * clampedIntensity;
+  };
+  const getInitialTranslateYValue = (eff: PuffPopEffect) => {
+    if (initialTranslateY !== undefined) return initialTranslateY;
+    return getInitialTranslateY(eff, reverse) * clampedIntensity;
+  };
 
   // Animation values
   const opacity = useRef(new Animated.Value(animateOnMount ? getInitialOpacityValue() : 1)).current;
@@ -871,6 +902,15 @@ export interface PuffPopGroupProps {
    */
   reverse?: boolean;
 
+  // ============ Animation Intensity ============
+
+  /**
+   * Animation intensity multiplier (0-1) for all children
+   * Controls how far/much elements move during animation
+   * @default 1
+   */
+  intensity?: number;
+
   // ============ Exit Animation Settings ============
 
   /**
@@ -936,6 +976,8 @@ export function PuffPopGroup({
   initialTranslateY,
   // Reverse mode
   reverse,
+  // Animation intensity
+  intensity,
   // Exit animation settings
   exitEffect,
   exitDuration,
@@ -1032,6 +1074,7 @@ export function PuffPopGroup({
           initialTranslateX={initialTranslateX}
           initialTranslateY={initialTranslateY}
           reverse={reverse}
+          intensity={intensity}
           exitEffect={exitEffect}
           exitDuration={exitDuration}
           exitEasing={exitEasing}

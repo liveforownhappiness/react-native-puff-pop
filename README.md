@@ -19,6 +19,7 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 - 🎯 **Exit Animations**: Different effects for enter and exit animations
 - 🔄 **Reverse Mode**: Reverse animation direction with a single prop
 - 🎛️ **Custom Initial Values**: Fine-tune starting opacity, scale, rotation, and position
+- 📊 **Animation Intensity**: Control how dramatic your animations are (0-1)
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
@@ -301,6 +302,56 @@ With `PuffPopGroup`:
 </PuffPopGroup>
 ```
 
+### Animation Intensity
+
+Control how dramatic your animations are with the `intensity` prop (0-1):
+
+```tsx
+// Full animation (default)
+<PuffPop effect="slideUp" intensity={1}>
+  <Card />
+</PuffPop>
+
+// Half the movement distance (25px instead of 50px)
+<PuffPop effect="slideUp" intensity={0.5}>
+  <Card />
+</PuffPop>
+
+// Subtle animation (10px slide)
+<PuffPop effect="slideUp" intensity={0.2}>
+  <Tooltip />
+</PuffPop>
+
+// No movement, just fade (intensity 0)
+<PuffPop effect="slideUp" intensity={0}>
+  <Content />
+</PuffPop>
+```
+
+Works with all effects:
+
+```tsx
+// Smaller scale range (starts at 0.5 instead of 0)
+<PuffPop effect="scale" intensity={0.5}>
+  <Avatar />
+</PuffPop>
+
+// Less rotation (180deg instead of 360deg)
+<PuffPop effect="rotate" intensity={0.5}>
+  <Icon />
+</PuffPop>
+```
+
+With `PuffPopGroup`:
+
+```tsx
+<PuffPopGroup effect="slideLeft" intensity={0.3} staggerDelay={50}>
+  <ListItem />
+  <ListItem />
+  <ListItem />
+</PuffPopGroup>
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -330,6 +381,7 @@ With `PuffPopGroup`:
 | `initialTranslateX` | `number` | - | Custom initial X translation in pixels |
 | `initialTranslateY` | `number` | - | Custom initial Y translation in pixels |
 | `reverse` | `boolean` | `false` | Reverse animation direction |
+| `intensity` | `number` | `1` | Animation intensity multiplier (0-1) |
 
 ### PuffPopGroup Props
 
@@ -362,6 +414,7 @@ With `PuffPopGroup`:
 | `initialTranslateX` | `number` | - | Custom initial X translation for all children |
 | `initialTranslateY` | `number` | - | Custom initial Y translation for all children |
 | `reverse` | `boolean` | `false` | Reverse animation direction for all children |
+| `intensity` | `number` | `1` | Animation intensity multiplier for all children |
 
 ### Animation Effects (`PuffPopEffect`)
 
