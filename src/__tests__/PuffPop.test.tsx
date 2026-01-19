@@ -63,6 +63,11 @@ describe('PuffPop', () => {
       'flip',
       'zoom',
       'rotateScale',
+      'shake',
+      'pulse',
+      'swing',
+      'wobble',
+      'elastic',
     ];
 
     effects.forEach((effect) => {

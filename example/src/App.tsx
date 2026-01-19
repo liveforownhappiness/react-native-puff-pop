@@ -458,6 +458,11 @@ function getEffectIcon(effect: PuffPopEffect): string {
     flip: '🪙',
     zoom: '🔎',
     rotateScale: '🌀',
+    shake: '📳',
+    pulse: '💓',
+    swing: '🎯',
+    wobble: '🌊',
+    elastic: '🧲',
   };
   return icons[effect];
 }
@@ -475,6 +480,11 @@ function getEffectDescription(effect: PuffPopEffect): string {
     flip: '3D flip animation',
     zoom: 'Zoom with overshoot',
     rotateScale: 'Rotate + Scale combined',
+    shake: 'Shake left-right effect',
+    pulse: 'Pulse heartbeat effect',
+    swing: 'Swing like pendulum',
+    wobble: 'Wobble with tilt',
+    elastic: 'Elastic stretch effect',
   };
   return descriptions[effect];
 }

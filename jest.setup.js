@@ -94,6 +94,7 @@ jest.mock('react-native', () => {
     inOut: (easing) => easing,
     back: () => (t) => t,
     bounce: (t) => t,
+    elastic: () => (t) => t,
   };
 
   const AccessibilityInfo = {

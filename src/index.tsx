@@ -33,7 +33,12 @@ export type PuffPopEffect =
   | 'bounce' // Bounce effect with overshoot
   | 'flip' // 3D flip effect
   | 'zoom' // Zoom with slight overshoot
-  | 'rotateScale'; // Rotate + Scale combined
+  | 'rotateScale' // Rotate + Scale combined
+  | 'shake' // Shake left-right (흔들림 효과)
+  | 'pulse' // Pulse scale effect (맥박처럼 커졌다 작아짐)
+  | 'swing' // Swing like pendulum (시계추처럼 흔들림)
+  | 'wobble' // Wobble with tilt (기울어지며 이동)
+  | 'elastic'; // Elastic stretch effect (탄성 효과)
 
 /**
  * Easing function types
@@ -342,12 +347,18 @@ export function PuffPop({
 
   // Helper to get effect flags for any effect type
   const getEffectFlags = useCallback((eff: PuffPopEffect) => ({
-    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip'].includes(eff),
-    hasRotate: ['rotate', 'rotateScale'].includes(eff),
+    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip', 'pulse', 'elastic'].includes(eff),
+    hasRotate: ['rotate', 'rotateScale', 'swing', 'wobble'].includes(eff),
     hasFlip: eff === 'flip',
-    hasTranslateX: ['slideLeft', 'slideRight'].includes(eff),
+    hasTranslateX: ['slideLeft', 'slideRight', 'shake', 'wobble'].includes(eff),
     hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(eff),
-    hasRotateEffect: ['rotate', 'rotateScale', 'flip'].includes(eff),
+    hasRotateEffect: ['rotate', 'rotateScale', 'flip', 'swing', 'wobble'].includes(eff),
+    // Special effects that need sequence animation
+    isShake: eff === 'shake',
+    isPulse: eff === 'pulse',
+    isSwing: eff === 'swing',
+    isWobble: eff === 'wobble',
+    isElastic: eff === 'elastic',
   }), []);
 
   // Memoize effect type checks to avoid repeated includes() calls
@@ -420,11 +431,20 @@ export function PuffPop({
       // Scale animation
       if (currentFlags.hasScale) {
         const targetScale = toVisible ? 1 : getInitialScaleValue(currentEffect);
+        // Special easing for different effects
+        let scaleEasing = easingFn;
+        if (currentEffect === 'bounce') {
+          scaleEasing = Easing.bounce;
+        } else if (currentEffect === 'elastic') {
+          scaleEasing = Easing.elastic(1.5);
+        } else if (currentEffect === 'pulse') {
+          scaleEasing = Easing.out(Easing.back(3));
+        }
         animations.push(
           Animated.timing(scale, {
             toValue: targetScale,
             ...config,
-            easing: currentEffect === 'bounce' ? Easing.bounce : easingFn,
+            easing: scaleEasing,
           })
         );
       }
@@ -432,10 +452,18 @@ export function PuffPop({
       // Rotate animation
       if (currentFlags.hasRotate || currentFlags.hasFlip) {
         const targetRotate = toVisible ? 0 : getInitialRotateValue(currentEffect);
+        // Special easing for swing and wobble
+        let rotateEasing = easingFn;
+        if (currentEffect === 'swing') {
+          rotateEasing = Easing.elastic(1.2);
+        } else if (currentEffect === 'wobble') {
+          rotateEasing = Easing.elastic(1.5);
+        }
         animations.push(
           Animated.timing(rotate, {
             toValue: targetRotate,
             ...config,
+            easing: rotateEasing,
           })
         );
       }
@@ -443,10 +471,18 @@ export function PuffPop({
       // TranslateX animation
       if (currentFlags.hasTranslateX) {
         const targetX = toVisible ? 0 : getInitialTranslateXValue(currentEffect);
+        // Special easing for shake and wobble
+        let translateXEasing = easingFn;
+        if (currentEffect === 'shake') {
+          translateXEasing = Easing.elastic(3);
+        } else if (currentEffect === 'wobble') {
+          translateXEasing = Easing.elastic(1.5);
+        }
         animations.push(
           Animated.timing(translateX, {
             toValue: targetX,
             ...config,
+            easing: translateXEasing,
           })
         );
       }
@@ -689,6 +725,7 @@ function getInitialScale(effect: PuffPopEffect, _reverse = false): number {
   switch (effect) {
     case 'scale':
     case 'rotateScale':
+    case 'elastic':
       return 0;
     case 'bounce':
       return 0.3;
@@ -696,6 +733,8 @@ function getInitialScale(effect: PuffPopEffect, _reverse = false): number {
       return 0.5;
     case 'flip':
       return 0.8;
+    case 'pulse':
+      return 0.6;
     default:
       return 1;
   }
@@ -713,6 +752,10 @@ function getInitialRotate(effect: PuffPopEffect, reverse = false): number {
       return -180 * multiplier;
     case 'flip':
       return -180 * multiplier;
+    case 'swing':
+      return -15 * multiplier;
+    case 'wobble':
+      return -5 * multiplier;
     default:
       return 0;
   }
@@ -728,6 +771,10 @@ function getInitialTranslateX(effect: PuffPopEffect, reverse = false): number {
       return 100 * multiplier;
     case 'slideRight':
       return -100 * multiplier;
+    case 'shake':
+      return -10 * multiplier;
+    case 'wobble':
+      return -25 * multiplier;
     default:
       return 0;
   }

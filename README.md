@@ -15,7 +15,7 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 
 ## Features
 
-- 🎬 **11 Animation Effects**: scale, rotate, fade, slideUp, slideDown, slideLeft, slideRight, bounce, flip, zoom, rotateScale
+- 🎬 **16 Animation Effects**: scale, rotate, fade, slideUp/Down/Left/Right, bounce, flip, zoom, rotateScale, shake, pulse, swing, wobble, elastic
 - 🎯 **Exit Animations**: Different effects for enter and exit animations
 - 🔄 **Reverse Mode**: Reverse animation direction with a single prop
 - 🎛️ **Custom Initial Values**: Fine-tune starting opacity, scale, rotation, and position
@@ -431,6 +431,11 @@ With `PuffPopGroup`:
 | `flip` | 3D flip effect |
 | `zoom` | Zoom with slight overshoot |
 | `rotateScale` | Rotate + Scale combined |
+| `shake` | Shake left-right (for alerts, errors) |
+| `pulse` | Pulse heartbeat effect (for emphasis) |
+| `swing` | Swing like pendulum (for menus) |
+| `wobble` | Wobble with tilt (playful entrance) |
+| `elastic` | Elastic stretch effect (springy feel) |
 
 ### Easing Types (`PuffPopEasing`)
 
