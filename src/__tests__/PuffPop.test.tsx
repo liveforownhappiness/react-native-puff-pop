@@ -686,4 +686,76 @@ describe('PuffPop', () => {
       expect(screen.getByTestId('intensity-custom')).toBeTruthy();
     });
   });
+
+  describe('Anchor Point', () => {
+    const anchorPoints = [
+      'center',
+      'top',
+      'bottom',
+      'left',
+      'right',
+      'topLeft',
+      'topRight',
+      'bottomLeft',
+      'bottomRight',
+    ] as const;
+
+    anchorPoints.forEach((point) => {
+      it(`renders with anchorPoint="${point}"`, () => {
+        render(
+          <PuffPop effect="scale" anchorPoint={point} testID={`anchor-${point}`}>
+            <Text>Anchor {point}</Text>
+          </PuffPop>
+        );
+
+        expect(screen.getByTestId(`anchor-${point}`)).toBeTruthy();
+      });
+    });
+
+    it('applies anchorPoint with scale effect', () => {
+      render(
+        <PuffPop effect="scale" anchorPoint="top" testID="anchor-scale">
+          <Text>Anchor Scale</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('anchor-scale')).toBeTruthy();
+    });
+
+    it('applies anchorPoint with rotate effect', () => {
+      render(
+        <PuffPop effect="rotate" anchorPoint="bottomLeft" testID="anchor-rotate">
+          <Text>Anchor Rotate</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('anchor-rotate')).toBeTruthy();
+    });
+
+    it('applies anchorPoint with flip effect', () => {
+      render(
+        <PuffPop effect="flip" anchorPoint="left" testID="anchor-flip">
+          <Text>Anchor Flip</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('anchor-flip')).toBeTruthy();
+    });
+
+    it('combines anchorPoint with other props', () => {
+      render(
+        <PuffPop
+          effect="scale"
+          anchorPoint="topRight"
+          intensity={0.5}
+          reverse
+          testID="anchor-combined"
+        >
+          <Text>Anchor Combined</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('anchor-combined')).toBeTruthy();
+    });
+  });
 });

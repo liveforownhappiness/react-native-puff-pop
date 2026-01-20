@@ -20,6 +20,7 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 - 🔄 **Reverse Mode**: Reverse animation direction with a single prop
 - 🎛️ **Custom Initial Values**: Fine-tune starting opacity, scale, rotation, and position
 - 📊 **Animation Intensity**: Control how dramatic your animations are (0-1)
+- 📍 **Anchor Point**: Set transform origin for scale/rotate (top, bottom, corners, etc.)
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
@@ -352,6 +353,46 @@ With `PuffPopGroup`:
 </PuffPopGroup>
 ```
 
+### Anchor Point
+
+Set the transform origin for scale/rotate animations:
+
+```tsx
+// Scale from top (expands downward)
+<PuffPop effect="scale" anchorPoint="top">
+  <DropdownMenu />
+</PuffPop>
+
+// Scale from bottom-left corner
+<PuffPop effect="scale" anchorPoint="bottomLeft">
+  <Tooltip />
+</PuffPop>
+
+// Rotate from top-left (door-opening effect)
+<PuffPop effect="rotate" anchorPoint="topLeft">
+  <Panel />
+</PuffPop>
+
+// Flip from right edge
+<PuffPop effect="flip" anchorPoint="right">
+  <Card />
+</PuffPop>
+```
+
+Available anchor points:
+
+| Value | Description |
+|-------|-------------|
+| `center` | Default center point |
+| `top` | Top center |
+| `bottom` | Bottom center |
+| `left` | Left center |
+| `right` | Right center |
+| `topLeft` | Top-left corner |
+| `topRight` | Top-right corner |
+| `bottomLeft` | Bottom-left corner |
+| `bottomRight` | Bottom-right corner |
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -382,6 +423,7 @@ With `PuffPopGroup`:
 | `initialTranslateY` | `number` | - | Custom initial Y translation in pixels |
 | `reverse` | `boolean` | `false` | Reverse animation direction |
 | `intensity` | `number` | `1` | Animation intensity multiplier (0-1) |
+| `anchorPoint` | `PuffPopAnchorPoint` | `'center'` | Transform origin for scale/rotate |
 
 ### PuffPopGroup Props
 
@@ -415,6 +457,7 @@ With `PuffPopGroup`:
 | `initialTranslateY` | `number` | - | Custom initial Y translation for all children |
 | `reverse` | `boolean` | `false` | Reverse animation direction for all children |
 | `intensity` | `number` | `1` | Animation intensity multiplier for all children |
+| `anchorPoint` | `PuffPopAnchorPoint` | `'center'` | Transform origin for all children |
 
 ### Animation Effects (`PuffPopEffect`)
 

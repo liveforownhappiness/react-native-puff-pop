@@ -546,4 +546,49 @@ describe('PuffPopGroup', () => {
       expect(screen.getByTestId('group-intensity-reverse')).toBeTruthy();
     });
   });
+
+  describe('Anchor Point', () => {
+    it('accepts anchorPoint prop', () => {
+      render(
+        <PuffPopGroup effect="scale" anchorPoint="top" testID="group-anchor">
+          <Text>Anchor 1</Text>
+          <Text>Anchor 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-anchor')).toBeTruthy();
+    });
+
+    it('applies anchorPoint to all children', () => {
+      render(
+        <PuffPopGroup effect="scale" anchorPoint="bottomRight" testID="group-anchor-all">
+          <Text>A1</Text>
+          <Text>A2</Text>
+          <Text>A3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-anchor-all')).toBeTruthy();
+      expect(screen.getByText('A1')).toBeTruthy();
+      expect(screen.getByText('A2')).toBeTruthy();
+      expect(screen.getByText('A3')).toBeTruthy();
+    });
+
+    it('combines anchorPoint with other props', () => {
+      render(
+        <PuffPopGroup
+          effect="rotate"
+          anchorPoint="topLeft"
+          intensity={0.5}
+          reverse
+          testID="group-anchor-combined"
+        >
+          <Text>AC 1</Text>
+          <Text>AC 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-anchor-combined')).toBeTruthy();
+    });
+  });
 });

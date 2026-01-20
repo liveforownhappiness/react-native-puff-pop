@@ -51,6 +51,21 @@ export type PuffPopEasing =
   | 'spring'
   | 'bounce';
 
+/**
+ * Anchor point for scale/rotate transformations
+ * Determines the origin point of the transformation
+ */
+export type PuffPopAnchorPoint =
+  | 'center' // Default center point
+  | 'top' // Top center
+  | 'bottom' // Bottom center
+  | 'left' // Left center
+  | 'right' // Right center
+  | 'topLeft' // Top left corner
+  | 'topRight' // Top right corner
+  | 'bottomLeft' // Bottom left corner
+  | 'bottomRight'; // Bottom right corner
+
 export interface PuffPopProps {
   /**
    * Children to animate
@@ -221,6 +236,18 @@ export interface PuffPopProps {
    * @default 1
    */
   intensity?: number;
+
+  // ============ Anchor Point ============
+
+  /**
+   * Anchor point for scale/rotate transformations
+   * Determines the origin point of the transformation
+   * - 'center' = default center point
+   * - 'top', 'bottom', 'left', 'right' = edge centers
+   * - 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' = corners
+   * @default 'center'
+   */
+  anchorPoint?: PuffPopAnchorPoint;
 }
 
 /**
@@ -242,6 +269,34 @@ function getEasing(type: PuffPopEasing): (value: number) => number {
       return Easing.bounce;
     default:
       return Easing.out(Easing.ease);
+  }
+}
+
+/**
+ * Get anchor point offset multipliers
+ * Returns { x: -1 to 1, y: -1 to 1 } where 0 is center
+ */
+function getAnchorPointOffset(anchorPoint: PuffPopAnchorPoint): { x: number; y: number } {
+  switch (anchorPoint) {
+    case 'top':
+      return { x: 0, y: -0.5 };
+    case 'bottom':
+      return { x: 0, y: 0.5 };
+    case 'left':
+      return { x: -0.5, y: 0 };
+    case 'right':
+      return { x: 0.5, y: 0 };
+    case 'topLeft':
+      return { x: -0.5, y: -0.5 };
+    case 'topRight':
+      return { x: 0.5, y: -0.5 };
+    case 'bottomLeft':
+      return { x: -0.5, y: 0.5 };
+    case 'bottomRight':
+      return { x: 0.5, y: 0.5 };
+    case 'center':
+    default:
+      return { x: 0, y: 0 };
   }
 }
 
@@ -279,6 +334,8 @@ export function PuffPop({
   reverse = false,
   // Animation intensity
   intensity = 1,
+  // Anchor point
+  anchorPoint = 'center',
 }: PuffPopProps): ReactElement {
   // Clamp intensity between 0 and 1
   const clampedIntensity = Math.max(0, Math.min(1, intensity));
@@ -652,12 +709,36 @@ export function PuffPop({
     };
   }, []);
 
+  // Calculate anchor point offset (using 100px as base size for skeleton mode)
+  const anchorOffset = useMemo(() => {
+    const offset = getAnchorPointOffset(anchorPoint);
+    // Use measured height if available, otherwise use 100px as base
+    const baseSize = measuredHeight ?? 100;
+    return {
+      x: offset.x * baseSize,
+      y: offset.y * baseSize,
+    };
+  }, [anchorPoint, measuredHeight]);
+
   // Memoize transform array to avoid recreating on every render
   // IMPORTANT: All hooks must be called before any conditional returns
   const transform = useMemo(() => {
     const { hasScale, hasRotate, hasFlip, hasTranslateX, hasTranslateY } = effectFlags;
-    const transforms = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transforms: any[] = [];
+    const needsAnchorOffset = anchorPoint !== 'center' && (hasScale || hasRotate || hasFlip);
 
+    // Step 1: Move to anchor point (negative offset)
+    if (needsAnchorOffset) {
+      if (anchorOffset.x !== 0) {
+        transforms.push({ translateX: -anchorOffset.x });
+      }
+      if (anchorOffset.y !== 0) {
+        transforms.push({ translateY: -anchorOffset.y });
+      }
+    }
+
+    // Step 2: Apply scale/rotate transforms
     if (hasScale) {
       transforms.push({ scale });
     }
@@ -670,6 +751,17 @@ export function PuffPop({
       transforms.push({ rotateY: flipInterpolation });
     }
 
+    // Step 3: Move back from anchor point (positive offset)
+    if (needsAnchorOffset) {
+      if (anchorOffset.x !== 0) {
+        transforms.push({ translateX: anchorOffset.x });
+      }
+      if (anchorOffset.y !== 0) {
+        transforms.push({ translateY: anchorOffset.y });
+      }
+    }
+
+    // Step 4: Apply other translate transforms
     if (hasTranslateX) {
       transforms.push({ translateX });
     }
@@ -679,7 +771,7 @@ export function PuffPop({
     }
 
     return transforms.length > 0 ? transforms : undefined;
-  }, [effectFlags, scale, rotateInterpolation, flipInterpolation, translateX, translateY]);
+  }, [effectFlags, scale, rotateInterpolation, flipInterpolation, translateX, translateY, anchorPoint, anchorOffset]);
 
   // Memoize animated style
   const animatedStyle = useMemo(() => ({
@@ -958,6 +1050,14 @@ export interface PuffPopGroupProps {
    */
   intensity?: number;
 
+  // ============ Anchor Point ============
+
+  /**
+   * Anchor point for scale/rotate transformations for all children
+   * @default 'center'
+   */
+  anchorPoint?: PuffPopAnchorPoint;
+
   // ============ Exit Animation Settings ============
 
   /**
@@ -1025,6 +1125,8 @@ export function PuffPopGroup({
   reverse,
   // Animation intensity
   intensity,
+  // Anchor point
+  anchorPoint,
   // Exit animation settings
   exitEffect,
   exitDuration,
@@ -1122,6 +1224,7 @@ export function PuffPopGroup({
           initialTranslateY={initialTranslateY}
           reverse={reverse}
           intensity={intensity}
+          anchorPoint={anchorPoint}
           exitEffect={exitEffect}
           exitDuration={exitDuration}
           exitEasing={exitEasing}
