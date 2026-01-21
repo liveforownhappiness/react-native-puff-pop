@@ -591,4 +591,113 @@ describe('PuffPopGroup', () => {
       expect(screen.getByTestId('group-anchor-combined')).toBeTruthy();
     });
   });
+
+  describe('Exit Stagger Delay', () => {
+    it('accepts exitStaggerDelay prop', () => {
+      render(
+        <PuffPopGroup exitStaggerDelay={50} testID="group-exit-stagger">
+          <Text>ES 1</Text>
+          <Text>ES 2</Text>
+          <Text>ES 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger')).toBeTruthy();
+    });
+
+    it('accepts exitStaggerDirection prop with forward', () => {
+      render(
+        <PuffPopGroup 
+          exitStaggerDelay={50} 
+          exitStaggerDirection="forward" 
+          testID="group-exit-stagger-forward"
+        >
+          <Text>ESF 1</Text>
+          <Text>ESF 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger-forward')).toBeTruthy();
+    });
+
+    it('accepts exitStaggerDirection prop with reverse', () => {
+      render(
+        <PuffPopGroup 
+          exitStaggerDelay={50} 
+          exitStaggerDirection="reverse" 
+          testID="group-exit-stagger-reverse"
+        >
+          <Text>ESR 1</Text>
+          <Text>ESR 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger-reverse')).toBeTruthy();
+    });
+
+    it('accepts exitStaggerDirection prop with center', () => {
+      render(
+        <PuffPopGroup 
+          exitStaggerDelay={50} 
+          exitStaggerDirection="center" 
+          testID="group-exit-stagger-center"
+        >
+          <Text>ESC 1</Text>
+          <Text>ESC 2</Text>
+          <Text>ESC 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger-center')).toBeTruthy();
+    });
+
+    it('accepts exitStaggerDirection prop with edges', () => {
+      render(
+        <PuffPopGroup 
+          exitStaggerDelay={50} 
+          exitStaggerDirection="edges" 
+          testID="group-exit-stagger-edges"
+        >
+          <Text>ESE 1</Text>
+          <Text>ESE 2</Text>
+          <Text>ESE 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger-edges')).toBeTruthy();
+    });
+
+    it('combines exitStaggerDelay with exitDelay', () => {
+      render(
+        <PuffPopGroup 
+          exitDelay={100}
+          exitStaggerDelay={50} 
+          testID="group-exit-stagger-combined"
+        >
+          <Text>ESX 1</Text>
+          <Text>ESX 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-stagger-combined')).toBeTruthy();
+    });
+
+    it('combines exitStaggerDelay with other exit props', () => {
+      render(
+        <PuffPopGroup 
+          exitEffect="fade"
+          exitDuration={200}
+          exitStaggerDelay={30}
+          exitStaggerDirection="reverse"
+          testID="group-exit-all"
+        >
+          <Text>EA 1</Text>
+          <Text>EA 2</Text>
+          <Text>EA 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-exit-all')).toBeTruthy();
+    });
+  });
 });

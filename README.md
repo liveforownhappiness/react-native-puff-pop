@@ -241,6 +241,43 @@ With `PuffPopGroup`:
 </PuffPopGroup>
 ```
 
+### Exit Stagger Animation
+
+Stagger the exit animation of group children:
+
+```tsx
+// Children exit one by one in reverse order (last first)
+<PuffPopGroup
+  staggerDelay={50}
+  exitStaggerDelay={50}
+  exitStaggerDirection="reverse"
+  visible={isVisible}
+>
+  <ListItem />
+  <ListItem />
+  <ListItem />
+</PuffPopGroup>
+
+// Children exit from center outward
+<PuffPopGroup
+  exitStaggerDelay={30}
+  exitStaggerDirection="center"
+  visible={isVisible}
+>
+  <MenuItem />
+  <MenuItem />
+  <MenuItem />
+  <MenuItem />
+  <MenuItem />
+</PuffPopGroup>
+```
+
+Exit stagger directions:
+- `forward`: First child exits first
+- `reverse`: Last child exits first (default, LIFO)
+- `center`: Center children exit first
+- `edges`: Edge children exit first
+
 ### Custom Initial Values
 
 Fine-tune the starting values of your animations:
@@ -458,6 +495,8 @@ Available anchor points:
 | `reverse` | `boolean` | `false` | Reverse animation direction for all children |
 | `intensity` | `number` | `1` | Animation intensity multiplier for all children |
 | `anchorPoint` | `PuffPopAnchorPoint` | `'center'` | Transform origin for all children |
+| `exitStaggerDelay` | `number` | `0` | Delay between each child's exit animation |
+| `exitStaggerDirection` | `'forward' \| 'reverse' \| 'center' \| 'edges'` | `'reverse'` | Direction of exit stagger |
 
 ### Animation Effects (`PuffPopEffect`)
 

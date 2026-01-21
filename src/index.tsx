@@ -1083,6 +1083,23 @@ export interface PuffPopGroupProps {
    * @default 0
    */
   exitDelay?: number;
+
+  /**
+   * Delay between each child's exit animation start in milliseconds
+   * If not specified, all children exit simultaneously
+   * @default 0
+   */
+  exitStaggerDelay?: number;
+
+  /**
+   * Direction of exit stagger animation
+   * - 'forward': First to last child
+   * - 'reverse': Last to first child (most natural for exit)
+   * - 'center': From center outward
+   * - 'edges': From edges toward center
+   * @default 'reverse'
+   */
+  exitStaggerDirection?: 'forward' | 'reverse' | 'center' | 'edges';
 }
 
 /**
@@ -1132,6 +1149,8 @@ export function PuffPopGroup({
   exitDuration,
   exitEasing,
   exitDelay,
+  exitStaggerDelay = 0,
+  exitStaggerDirection = 'reverse',
 }: PuffPopGroupProps): ReactElement {
   const childArray = Children.toArray(children);
   const childCount = childArray.length;
@@ -1166,6 +1185,41 @@ export function PuffPopGroup({
       return initialDelay + delayIndex * staggerDelay;
     },
     [childCount, initialDelay, staggerDelay, staggerDirection]
+  );
+
+  // Calculate exit delay for each child based on exit stagger direction
+  const getChildExitDelay = useCallback(
+    (index: number): number => {
+      if (exitStaggerDelay === 0) {
+        return exitDelay ?? 0;
+      }
+
+      let delayIndex: number;
+
+      switch (exitStaggerDirection) {
+        case 'forward':
+          delayIndex = index;
+          break;
+        case 'center': {
+          const center = (childCount - 1) / 2;
+          delayIndex = Math.abs(index - center);
+          break;
+        }
+        case 'edges': {
+          const center = (childCount - 1) / 2;
+          delayIndex = center - Math.abs(index - center);
+          break;
+        }
+        case 'reverse':
+        default:
+          // Reverse is default for exit (last in, first out)
+          delayIndex = childCount - 1 - index;
+          break;
+      }
+
+      return (exitDelay ?? 0) + delayIndex * exitStaggerDelay;
+    },
+    [childCount, exitDelay, exitStaggerDelay, exitStaggerDirection]
   );
 
   // Handle individual child animation complete
@@ -1228,7 +1282,7 @@ export function PuffPopGroup({
           exitEffect={exitEffect}
           exitDuration={exitDuration}
           exitEasing={exitEasing}
-          exitDelay={exitDelay}
+          exitDelay={getChildExitDelay(index)}
         >
           {child}
         </PuffPop>
