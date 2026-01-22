@@ -758,4 +758,81 @@ describe('PuffPop', () => {
       expect(screen.getByTestId('anchor-combined')).toBeTruthy();
     });
   });
+
+  describe('Spring Animation', () => {
+    it('accepts useSpring prop', () => {
+      render(
+        <PuffPop useSpring testID="use-spring">
+          <Text>Use Spring</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('use-spring')).toBeTruthy();
+    });
+
+    it('accepts springConfig with tension', () => {
+      render(
+        <PuffPop useSpring springConfig={{ tension: 150 }} testID="spring-tension">
+          <Text>Spring Tension</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('spring-tension')).toBeTruthy();
+    });
+
+    it('accepts springConfig with friction', () => {
+      render(
+        <PuffPop useSpring springConfig={{ friction: 5 }} testID="spring-friction">
+          <Text>Spring Friction</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('spring-friction')).toBeTruthy();
+    });
+
+    it('accepts springConfig with all options', () => {
+      render(
+        <PuffPop
+          useSpring
+          springConfig={{
+            tension: 200,
+            friction: 8,
+            speed: 15,
+            bounciness: 10,
+          }}
+          testID="spring-all"
+        >
+          <Text>Spring All</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('spring-all')).toBeTruthy();
+    });
+
+    it('combines useSpring with effect', () => {
+      render(
+        <PuffPop effect="scale" useSpring testID="spring-effect">
+          <Text>Spring Effect</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('spring-effect')).toBeTruthy();
+    });
+
+    it('combines useSpring with other props', () => {
+      render(
+        <PuffPop
+          effect="slideUp"
+          useSpring
+          springConfig={{ tension: 100, friction: 10 }}
+          intensity={0.8}
+          testID="spring-combined"
+        >
+          <Text>Spring Combined</Text>
+        </PuffPop>
+      );
+
+      expect(screen.getByTestId('spring-combined')).toBeTruthy();
+    });
+  });
 });

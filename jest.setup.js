@@ -38,6 +38,15 @@ jest.mock('react-native', () => {
       },
       stop: jest.fn(),
     }),
+    spring: (value, config) => ({
+      start: (callback) => {
+        if (value && typeof value.setValue === 'function') {
+          value.setValue(config.toValue);
+        }
+        callback?.({ finished: true });
+      },
+      stop: jest.fn(),
+    }),
     parallel: (animations) => ({
       start: (callback) => {
         animations.forEach((anim) => anim?.start?.());

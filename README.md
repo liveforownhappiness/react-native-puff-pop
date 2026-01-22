@@ -21,6 +21,7 @@ Works with both **React Native CLI** and **Expo** projects - no native dependenc
 - 🎛️ **Custom Initial Values**: Fine-tune starting opacity, scale, rotation, and position
 - 📊 **Animation Intensity**: Control how dramatic your animations are (0-1)
 - 📍 **Anchor Point**: Set transform origin for scale/rotate (top, bottom, corners, etc.)
+- 🧲 **Spring Physics**: Use physics-based spring animations with customizable tension/friction
 - 🦴 **Skeleton Mode**: Reserve space before animation or expand from zero height
 - ⚡ **Native Driver Support**: Smooth 60fps animations
 - 🎯 **Easy to Use**: Just wrap your components with `<PuffPop>`
@@ -430,6 +431,51 @@ Available anchor points:
 | `bottomLeft` | Bottom-left corner |
 | `bottomRight` | Bottom-right corner |
 
+### Spring Animation
+
+Use physics-based spring animations for more natural, bouncy effects:
+
+```tsx
+// Enable spring animation
+<PuffPop effect="scale" useSpring>
+  <Card />
+</PuffPop>
+
+// Customize spring physics
+<PuffPop
+  effect="slideUp"
+  useSpring
+  springConfig={{
+    tension: 150,    // Higher = faster, snappier
+    friction: 8,     // Higher = less bouncy
+  }}
+>
+  <Modal />
+</PuffPop>
+
+// Very bouncy spring
+<PuffPop
+  effect="scale"
+  useSpring
+  springConfig={{
+    tension: 200,
+    friction: 5,
+    bounciness: 12,
+  }}
+>
+  <Button />
+</PuffPop>
+```
+
+Spring config options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `tension` | `100` | Spring stiffness (higher = faster) |
+| `friction` | `10` | Damping (higher = less oscillation) |
+| `speed` | `12` | Animation speed multiplier |
+| `bounciness` | `8` | Bounce amount (higher = more bouncy) |
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -461,6 +507,8 @@ Available anchor points:
 | `reverse` | `boolean` | `false` | Reverse animation direction |
 | `intensity` | `number` | `1` | Animation intensity multiplier (0-1) |
 | `anchorPoint` | `PuffPopAnchorPoint` | `'center'` | Transform origin for scale/rotate |
+| `useSpring` | `boolean` | `false` | Use physics-based spring animation |
+| `springConfig` | `PuffPopSpringConfig` | - | Spring animation settings (tension, friction, etc.) |
 
 ### PuffPopGroup Props
 
@@ -495,6 +543,8 @@ Available anchor points:
 | `reverse` | `boolean` | `false` | Reverse animation direction for all children |
 | `intensity` | `number` | `1` | Animation intensity multiplier for all children |
 | `anchorPoint` | `PuffPopAnchorPoint` | `'center'` | Transform origin for all children |
+| `useSpring` | `boolean` | `false` | Use spring animation for all children |
+| `springConfig` | `PuffPopSpringConfig` | - | Spring settings for all children |
 | `exitStaggerDelay` | `number` | `0` | Delay between each child's exit animation |
 | `exitStaggerDirection` | `'forward' \| 'reverse' \| 'center' \| 'edges'` | `'reverse'` | Direction of exit stagger |
 

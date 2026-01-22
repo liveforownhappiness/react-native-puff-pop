@@ -700,4 +700,50 @@ describe('PuffPopGroup', () => {
       expect(screen.getByTestId('group-exit-all')).toBeTruthy();
     });
   });
+
+  describe('Spring Animation', () => {
+    it('accepts useSpring prop', () => {
+      render(
+        <PuffPopGroup useSpring testID="group-spring">
+          <Text>Spring 1</Text>
+          <Text>Spring 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-spring')).toBeTruthy();
+    });
+
+    it('accepts springConfig prop', () => {
+      render(
+        <PuffPopGroup 
+          useSpring 
+          springConfig={{ tension: 150, friction: 8 }}
+          testID="group-spring-config"
+        >
+          <Text>SC 1</Text>
+          <Text>SC 2</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-spring-config')).toBeTruthy();
+    });
+
+    it('combines spring with other props', () => {
+      render(
+        <PuffPopGroup 
+          effect="scale"
+          useSpring 
+          springConfig={{ tension: 200 }}
+          staggerDelay={50}
+          testID="group-spring-combined"
+        >
+          <Text>SCC 1</Text>
+          <Text>SCC 2</Text>
+          <Text>SCC 3</Text>
+        </PuffPopGroup>
+      );
+
+      expect(screen.getByTestId('group-spring-combined')).toBeTruthy();
+    });
+  });
 });

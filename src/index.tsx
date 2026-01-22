@@ -66,6 +66,36 @@ export type PuffPopAnchorPoint =
   | 'bottomLeft' // Bottom left corner
   | 'bottomRight'; // Bottom right corner
 
+/**
+ * Spring animation configuration
+ * Used when useSpring is true for physics-based animations
+ */
+export interface PuffPopSpringConfig {
+  /**
+   * Controls the spring stiffness. Higher values = faster, snappier animation
+   * @default 100
+   */
+  tension?: number;
+
+  /**
+   * Controls the spring damping. Higher values = less oscillation
+   * @default 10
+   */
+  friction?: number;
+
+  /**
+   * Animation speed multiplier
+   * @default 12
+   */
+  speed?: number;
+
+  /**
+   * Controls the bounciness. Higher values = more bouncy
+   * @default 8
+   */
+  bounciness?: number;
+}
+
 export interface PuffPopProps {
   /**
    * Children to animate
@@ -248,6 +278,21 @@ export interface PuffPopProps {
    * @default 'center'
    */
   anchorPoint?: PuffPopAnchorPoint;
+
+  // ============ Spring Animation ============
+
+  /**
+   * Use spring physics-based animation instead of timing
+   * Provides more natural, bouncy animations
+   * @default false
+   */
+  useSpring?: boolean;
+
+  /**
+   * Spring animation configuration
+   * Only used when useSpring is true
+   */
+  springConfig?: PuffPopSpringConfig;
 }
 
 /**
@@ -336,6 +381,9 @@ export function PuffPop({
   intensity = 1,
   // Anchor point
   anchorPoint = 'center',
+  // Spring animation
+  useSpring = false,
+  springConfig,
 }: PuffPopProps): ReactElement {
   // Clamp intensity between 0 and 1
   const clampedIntensity = Math.max(0, Math.min(1, intensity));
@@ -469,19 +517,48 @@ export function PuffPop({
       // When skeleton is false, we animate height which doesn't support native driver
       // So we must use JS driver for all animations in that case
       const useNative = skeleton;
-      const config = {
+      
+      // Spring configuration
+      const springConf = {
+        tension: springConfig?.tension ?? 100,
+        friction: springConfig?.friction ?? 10,
+        speed: springConfig?.speed,
+        bounciness: springConfig?.bounciness,
+        useNativeDriver: useNative,
+      };
+
+      const timingConfig = {
         duration: currentDuration,
         easing: easingFn,
         useNativeDriver: useNative,
       };
 
+      // Helper to create animation (spring or timing)
+      const createAnimation = (
+        value: Animated.Value,
+        toValue: number,
+        customEasing?: (t: number) => number
+      ): Animated.CompositeAnimation => {
+        if (useSpring) {
+          return Animated.spring(value, {
+            toValue,
+            ...springConf,
+          });
+        }
+        return Animated.timing(value, {
+          toValue,
+          ...timingConfig,
+          ...(customEasing ? { easing: customEasing } : {}),
+        });
+      };
+
       const animations: Animated.CompositeAnimation[] = [];
 
-      // Opacity animation
+      // Opacity animation (always use timing for opacity for smoother fade)
       animations.push(
         Animated.timing(opacity, {
           toValue: toVisible ? 1 : 0,
-          ...config,
+          ...timingConfig,
         })
       );
 
@@ -497,13 +574,7 @@ export function PuffPop({
         } else if (currentEffect === 'pulse') {
           scaleEasing = Easing.out(Easing.back(3));
         }
-        animations.push(
-          Animated.timing(scale, {
-            toValue: targetScale,
-            ...config,
-            easing: scaleEasing,
-          })
-        );
+        animations.push(createAnimation(scale, targetScale, scaleEasing));
       }
 
       // Rotate animation
@@ -516,13 +587,7 @@ export function PuffPop({
         } else if (currentEffect === 'wobble') {
           rotateEasing = Easing.elastic(1.5);
         }
-        animations.push(
-          Animated.timing(rotate, {
-            toValue: targetRotate,
-            ...config,
-            easing: rotateEasing,
-          })
-        );
+        animations.push(createAnimation(rotate, targetRotate, rotateEasing));
       }
 
       // TranslateX animation
@@ -535,27 +600,16 @@ export function PuffPop({
         } else if (currentEffect === 'wobble') {
           translateXEasing = Easing.elastic(1.5);
         }
-        animations.push(
-          Animated.timing(translateX, {
-            toValue: targetX,
-            ...config,
-            easing: translateXEasing,
-          })
-        );
+        animations.push(createAnimation(translateX, targetX, translateXEasing));
       }
 
       // TranslateY animation
       if (currentFlags.hasTranslateY) {
         const targetY = toVisible ? 0 : getInitialTranslateYValue(currentEffect);
-        animations.push(
-          Animated.timing(translateY, {
-            toValue: targetY,
-            ...config,
-          })
-        );
+        animations.push(createAnimation(translateY, targetY));
       }
 
-      // Height animation for non-skeleton mode
+      // Height animation for non-skeleton mode (always use timing)
       if (!skeleton && measuredHeight !== null) {
         const targetHeight = toVisible ? measuredHeight : 0;
         animations.push(
@@ -679,6 +733,8 @@ export function PuffPop({
       animatedHeight,
       loop,
       loopDelay,
+      useSpring,
+      springConfig,
     ]
   );
 
@@ -1058,6 +1114,19 @@ export interface PuffPopGroupProps {
    */
   anchorPoint?: PuffPopAnchorPoint;
 
+  // ============ Spring Animation ============
+
+  /**
+   * Use spring physics-based animation for all children
+   * @default false
+   */
+  useSpring?: boolean;
+
+  /**
+   * Spring animation configuration for all children
+   */
+  springConfig?: PuffPopSpringConfig;
+
   // ============ Exit Animation Settings ============
 
   /**
@@ -1144,6 +1213,9 @@ export function PuffPopGroup({
   intensity,
   // Anchor point
   anchorPoint,
+  // Spring animation
+  useSpring,
+  springConfig,
   // Exit animation settings
   exitEffect,
   exitDuration,
@@ -1279,6 +1351,8 @@ export function PuffPopGroup({
           reverse={reverse}
           intensity={intensity}
           anchorPoint={anchorPoint}
+          useSpring={useSpring}
+          springConfig={springConfig}
           exitEffect={exitEffect}
           exitDuration={exitDuration}
           exitEasing={exitEasing}
