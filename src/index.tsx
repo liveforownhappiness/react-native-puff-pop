@@ -318,6 +318,27 @@ function getEasing(type: PuffPopEasing): (value: number) => number {
 }
 
 /**
+ * Get effect flags for any effect type
+ * Returns flags indicating which transforms are needed for the effect
+ */
+function getEffectFlags(eff: PuffPopEffect) {
+  return {
+    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip', 'pulse', 'elastic'].includes(eff),
+    hasRotate: ['rotate', 'rotateScale', 'swing', 'wobble'].includes(eff),
+    hasFlip: eff === 'flip',
+    hasTranslateX: ['slideLeft', 'slideRight', 'shake', 'wobble'].includes(eff),
+    hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(eff),
+    hasRotateEffect: ['rotate', 'rotateScale', 'flip', 'swing', 'wobble'].includes(eff),
+    // Special effects that need sequence animation
+    isShake: eff === 'shake',
+    isPulse: eff === 'pulse',
+    isSwing: eff === 'swing',
+    isWobble: eff === 'wobble',
+    isElastic: eff === 'elastic',
+  };
+}
+
+/**
  * Get anchor point offset multipliers
  * Returns { x: -1 to 1, y: -1 to 1 } where 0 is center
  */
@@ -450,29 +471,13 @@ export function PuffPop({
   const effectiveDuration = respectReduceMotion && isReduceMotionEnabled ? 0 : duration;
   const effectiveExitDuration = respectReduceMotion && isReduceMotionEnabled ? 0 : (exitDuration ?? duration);
 
-  // Helper to get effect flags for any effect type
-  const getEffectFlags = useCallback((eff: PuffPopEffect) => ({
-    hasScale: ['scale', 'bounce', 'zoom', 'rotateScale', 'flip', 'pulse', 'elastic'].includes(eff),
-    hasRotate: ['rotate', 'rotateScale', 'swing', 'wobble'].includes(eff),
-    hasFlip: eff === 'flip',
-    hasTranslateX: ['slideLeft', 'slideRight', 'shake', 'wobble'].includes(eff),
-    hasTranslateY: ['slideUp', 'slideDown', 'bounce'].includes(eff),
-    hasRotateEffect: ['rotate', 'rotateScale', 'flip', 'swing', 'wobble'].includes(eff),
-    // Special effects that need sequence animation
-    isShake: eff === 'shake',
-    isPulse: eff === 'pulse',
-    isSwing: eff === 'swing',
-    isWobble: eff === 'wobble',
-    isElastic: eff === 'elastic',
-  }), []);
-
   // Memoize effect type checks to avoid repeated includes() calls
-  const effectFlags = useMemo(() => getEffectFlags(effect), [effect, getEffectFlags]);
+  const effectFlags = useMemo(() => getEffectFlags(effect), [effect]);
   
   // Exit effect flags (use exitEffect if specified, otherwise same as enter effect)
   const exitEffectFlags = useMemo(() => 
     exitEffect ? getEffectFlags(exitEffect) : effectFlags
-  , [exitEffect, getEffectFlags, effectFlags]);
+  , [exitEffect, effectFlags]);
 
   // Memoize interpolations to avoid recreating on every render
   const rotateInterpolation = useMemo(() => 
