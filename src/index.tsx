@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  memo,
   Children,
   type ReactNode,
   type ReactElement,
@@ -367,9 +368,83 @@ function getAnchorPointOffset(anchorPoint: PuffPopAnchorPoint): { x: number; y: 
 }
 
 /**
+ * Props comparison function for PuffPop memoization
+ * Performs shallow comparison of props to prevent unnecessary re-renders
+ */
+function arePuffPopPropsEqual(
+  prevProps: PuffPopProps,
+  nextProps: PuffPopProps
+): boolean {
+  // Compare primitive props
+  if (
+    prevProps.effect !== nextProps.effect ||
+    prevProps.duration !== nextProps.duration ||
+    prevProps.delay !== nextProps.delay ||
+    prevProps.easing !== nextProps.easing ||
+    prevProps.skeleton !== nextProps.skeleton ||
+    prevProps.visible !== nextProps.visible ||
+    prevProps.animateOnMount !== nextProps.animateOnMount ||
+    prevProps.loop !== nextProps.loop ||
+    prevProps.loopDelay !== nextProps.loopDelay ||
+    prevProps.respectReduceMotion !== nextProps.respectReduceMotion ||
+    prevProps.testID !== nextProps.testID ||
+    prevProps.reverse !== nextProps.reverse ||
+    prevProps.intensity !== nextProps.intensity ||
+    prevProps.anchorPoint !== nextProps.anchorPoint ||
+    prevProps.useSpring !== nextProps.useSpring ||
+    prevProps.exitEffect !== nextProps.exitEffect ||
+    prevProps.exitDuration !== nextProps.exitDuration ||
+    prevProps.exitEasing !== nextProps.exitEasing ||
+    prevProps.exitDelay !== nextProps.exitDelay ||
+    prevProps.initialOpacity !== nextProps.initialOpacity ||
+    prevProps.initialScale !== nextProps.initialScale ||
+    prevProps.initialRotate !== nextProps.initialRotate ||
+    prevProps.initialTranslateX !== nextProps.initialTranslateX ||
+    prevProps.initialTranslateY !== nextProps.initialTranslateY
+  ) {
+    return false;
+  }
+
+  // Compare springConfig object (shallow)
+  if (prevProps.springConfig !== nextProps.springConfig) {
+    if (
+      !prevProps.springConfig ||
+      !nextProps.springConfig ||
+      prevProps.springConfig.tension !== nextProps.springConfig.tension ||
+      prevProps.springConfig.friction !== nextProps.springConfig.friction ||
+      prevProps.springConfig.speed !== nextProps.springConfig.speed ||
+      prevProps.springConfig.bounciness !== nextProps.springConfig.bounciness
+    ) {
+      return false;
+    }
+  }
+
+  // Compare callbacks (reference equality - if changed, should re-render)
+  if (
+    prevProps.onAnimationStart !== nextProps.onAnimationStart ||
+    prevProps.onAnimationComplete !== nextProps.onAnimationComplete
+  ) {
+    return false;
+  }
+
+  // Style comparison - if style prop changes, re-render
+  // Note: Deep comparison of style is expensive, so we use reference equality
+  if (prevProps.style !== nextProps.style) {
+    return false;
+  }
+
+  // Children comparison - if children change, re-render
+  if (prevProps.children !== nextProps.children) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * PuffPop - Animate children with beautiful entrance effects
  */
-export function PuffPop({
+function PuffPopComponent({
   children,
   effect = 'scale',
   duration = 400,
@@ -870,6 +945,9 @@ export function PuffPop({
   );
 }
 
+// Memoize PuffPop to prevent unnecessary re-renders
+export const PuffPop = memo(PuffPopComponent, arePuffPopPropsEqual);
+
 /**
  * Get initial scale value based on effect
  */
@@ -1177,6 +1255,83 @@ export interface PuffPopGroupProps {
 }
 
 /**
+ * Props comparison function for PuffPopGroup memoization
+ * Performs shallow comparison of props to prevent unnecessary re-renders
+ */
+function arePuffPopGroupPropsEqual(
+  prevProps: PuffPopGroupProps,
+  nextProps: PuffPopGroupProps
+): boolean {
+  // Compare primitive props
+  if (
+    prevProps.effect !== nextProps.effect ||
+    prevProps.duration !== nextProps.duration ||
+    prevProps.staggerDelay !== nextProps.staggerDelay ||
+    prevProps.initialDelay !== nextProps.initialDelay ||
+    prevProps.easing !== nextProps.easing ||
+    prevProps.skeleton !== nextProps.skeleton ||
+    prevProps.visible !== nextProps.visible ||
+    prevProps.animateOnMount !== nextProps.animateOnMount ||
+    prevProps.respectReduceMotion !== nextProps.respectReduceMotion ||
+    prevProps.testID !== nextProps.testID ||
+    prevProps.staggerDirection !== nextProps.staggerDirection ||
+    prevProps.horizontal !== nextProps.horizontal ||
+    prevProps.gap !== nextProps.gap ||
+    prevProps.reverse !== nextProps.reverse ||
+    prevProps.intensity !== nextProps.intensity ||
+    prevProps.anchorPoint !== nextProps.anchorPoint ||
+    prevProps.useSpring !== nextProps.useSpring ||
+    prevProps.exitEffect !== nextProps.exitEffect ||
+    prevProps.exitDuration !== nextProps.exitDuration ||
+    prevProps.exitEasing !== nextProps.exitEasing ||
+    prevProps.exitDelay !== nextProps.exitDelay ||
+    prevProps.exitStaggerDelay !== nextProps.exitStaggerDelay ||
+    prevProps.exitStaggerDirection !== nextProps.exitStaggerDirection ||
+    prevProps.initialOpacity !== nextProps.initialOpacity ||
+    prevProps.initialScale !== nextProps.initialScale ||
+    prevProps.initialRotate !== nextProps.initialRotate ||
+    prevProps.initialTranslateX !== nextProps.initialTranslateX ||
+    prevProps.initialTranslateY !== nextProps.initialTranslateY
+  ) {
+    return false;
+  }
+
+  // Compare springConfig object (shallow)
+  if (prevProps.springConfig !== nextProps.springConfig) {
+    if (
+      !prevProps.springConfig ||
+      !nextProps.springConfig ||
+      prevProps.springConfig.tension !== nextProps.springConfig.tension ||
+      prevProps.springConfig.friction !== nextProps.springConfig.friction ||
+      prevProps.springConfig.speed !== nextProps.springConfig.speed ||
+      prevProps.springConfig.bounciness !== nextProps.springConfig.bounciness
+    ) {
+      return false;
+    }
+  }
+
+  // Compare callbacks
+  if (
+    prevProps.onAnimationStart !== nextProps.onAnimationStart ||
+    prevProps.onAnimationComplete !== nextProps.onAnimationComplete
+  ) {
+    return false;
+  }
+
+  // Style comparison
+  if (prevProps.style !== nextProps.style) {
+    return false;
+  }
+
+  // Children comparison - if children change, re-render
+  if (prevProps.children !== nextProps.children) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * PuffPopGroup - Animate multiple children with staggered entrance effects
  * 
  * @example
@@ -1188,7 +1343,7 @@ export interface PuffPopGroupProps {
  * </PuffPopGroup>
  * ```
  */
-export function PuffPopGroup({
+function PuffPopGroupComponent({
   children,
   effect = 'scale',
   duration = 400,
@@ -1369,6 +1524,9 @@ export function PuffPopGroup({
     </View>
   );
 }
+
+// Memoize PuffPopGroup to prevent unnecessary re-renders
+export const PuffPopGroup = memo(PuffPopGroupComponent, arePuffPopGroupPropsEqual);
 
 export default PuffPop;
 
