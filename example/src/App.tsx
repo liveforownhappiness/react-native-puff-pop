@@ -23,6 +23,144 @@ const EFFECTS: PuffPopEffect[] = [
   'rotateScale',
 ];
 
+// Exit Animation Demo Component
+function ExitAnimationDemo({
+  title,
+  enterEffect,
+  exitEffect,
+  exitDuration,
+  skeleton,
+}: {
+  title: string;
+  enterEffect: PuffPopEffect;
+  exitEffect: PuffPopEffect;
+  exitDuration?: number;
+  skeleton: boolean;
+}) {
+  const [visible, setVisible] = useState(true);
+
+  return (
+    <View style={styles.exitDemoContainer}>
+      <TouchableOpacity
+        style={styles.exitToggleButton}
+        onPress={() => setVisible(!visible)}
+      >
+        <Text style={styles.exitToggleText}>
+          {visible ? '👁️ Hide' : '👁️‍🗨️ Show'} - {title}
+        </Text>
+      </TouchableOpacity>
+      <PuffPop
+        effect={enterEffect}
+        exitEffect={exitEffect}
+        exitDuration={exitDuration}
+        visible={visible}
+        duration={400}
+        skeleton={skeleton}
+      >
+        <View style={styles.exitBox}>
+          <Text style={styles.exitBoxText}>{title}</Text>
+        </View>
+      </PuffPop>
+    </View>
+  );
+}
+
+// Exit Stagger Demo Component
+function ExitStaggerDemo({ skeleton }: { skeleton: boolean }) {
+  const [visible, setVisible] = useState(true);
+
+  return (
+    <View style={styles.exitStaggerContainer}>
+      <TouchableOpacity
+        style={styles.exitStaggerButton}
+        onPress={() => setVisible(!visible)}
+      >
+        <Text style={styles.exitStaggerButtonText}>
+          {visible ? '👁️ Hide All' : '👁️‍🗨️ Show All'}
+        </Text>
+      </TouchableOpacity>
+
+      <Text style={styles.groupSubtitle}>Forward Exit</Text>
+      <PuffPopGroup
+        effect="slideUp"
+        exitEffect="fade"
+        exitStaggerDelay={50}
+        exitStaggerDirection="forward"
+        visible={visible}
+        duration={400}
+        exitDuration={200}
+        skeleton={skeleton}
+        horizontal
+        gap={8}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+      </PuffPopGroup>
+
+      <Text style={styles.groupSubtitle}>Reverse Exit (default)</Text>
+      <PuffPopGroup
+        effect="scale"
+        exitEffect="fade"
+        exitStaggerDelay={50}
+        exitStaggerDirection="reverse"
+        visible={visible}
+        duration={400}
+        exitDuration={200}
+        skeleton={skeleton}
+        horizontal
+        gap={8}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+      </PuffPopGroup>
+
+      <Text style={styles.groupSubtitle}>Center Exit</Text>
+      <PuffPopGroup
+        effect="zoom"
+        exitEffect="fade"
+        exitStaggerDelay={30}
+        exitStaggerDirection="center"
+        visible={visible}
+        duration={400}
+        exitDuration={200}
+        skeleton={skeleton}
+        horizontal
+        gap={8}
+      >
+        <View style={[styles.groupBox, styles.groupBox1]}>
+          <Text style={styles.groupNumber}>1</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox2]}>
+          <Text style={styles.groupNumber}>2</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox3]}>
+          <Text style={styles.groupNumber}>3</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox4]}>
+          <Text style={styles.groupNumber}>4</Text>
+        </View>
+        <View style={[styles.groupBox, styles.groupBox5]}>
+          <Text style={styles.groupNumber}>5</Text>
+        </View>
+      </PuffPopGroup>
+    </View>
+  );
+}
+
 // Wrapper component for tappable replay
 function TappablePuffPop({
   id,
@@ -440,6 +578,247 @@ export default function App() {
         </View>
       </PuffPopGroup>
 
+      {/* Exit Animation */}
+      <Text style={styles.sectionTitle}>Exit Animation</Text>
+      <Text style={styles.groupHint}>Different effects for enter and exit</Text>
+      <View style={styles.exitContainer}>
+        <ExitAnimationDemo
+          key={`exit-1-${key}-${skeletonMode}`}
+          title="Scale → Fade"
+          enterEffect="scale"
+          exitEffect="fade"
+          skeleton={skeletonMode}
+        />
+        <ExitAnimationDemo
+          key={`exit-2-${key}-${skeletonMode}`}
+          title="Slide Up → Down"
+          enterEffect="slideUp"
+          exitEffect="slideDown"
+          skeleton={skeletonMode}
+        />
+        <ExitAnimationDemo
+          key={`exit-3-${key}-${skeletonMode}`}
+          title="Zoom → Fade"
+          enterEffect="zoom"
+          exitEffect="fade"
+          exitDuration={150}
+          skeleton={skeletonMode}
+        />
+      </View>
+
+      {/* Custom Initial Values */}
+      <Text style={styles.sectionTitle}>Custom Initial Values</Text>
+      <Text style={styles.groupHint}>Fine-tune starting animation values</Text>
+      <View style={styles.customInitialContainer}>
+        <PuffPop
+          key={`custom-1-${key}-${skeletonMode}`}
+          effect="scale"
+          initialScale={0.5}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.customBox, styles.customBox1]}>
+            <Text style={styles.customIcon}>📏</Text>
+            <Text style={styles.customText}>Scale 0.5</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`custom-2-${key}-${skeletonMode}`}
+          effect="slideUp"
+          initialTranslateY={100}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.customBox, styles.customBox2]}>
+            <Text style={styles.customIcon}>⬆️</Text>
+            <Text style={styles.customText}>Y: 100px</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`custom-3-${key}-${skeletonMode}`}
+          effect="rotateScale"
+          initialOpacity={0.3}
+          initialScale={0.2}
+          initialRotate={-90}
+          duration={600}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.customBox, styles.customBox3]}>
+            <Text style={styles.customIcon}>🎛️</Text>
+            <Text style={styles.customText}>Multi</Text>
+          </View>
+        </PuffPop>
+      </View>
+
+      {/* Reverse Mode */}
+      <Text style={styles.sectionTitle}>Reverse Mode</Text>
+      <Text style={styles.groupHint}>Reverse animation direction</Text>
+      <View style={styles.reverseContainer}>
+        <PuffPop
+          key={`reverse-1-${key}-${skeletonMode}`}
+          effect="slideUp"
+          reverse
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.reverseBox, styles.reverseBox1]}>
+            <Text style={styles.reverseIcon}>⬇️</Text>
+            <Text style={styles.reverseText}>Slide Up (rev)</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`reverse-2-${key}-${skeletonMode}`}
+          effect="slideLeft"
+          reverse
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.reverseBox, styles.reverseBox2]}>
+            <Text style={styles.reverseIcon}>➡️</Text>
+            <Text style={styles.reverseText}>Slide Left (rev)</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`reverse-3-${key}-${skeletonMode}`}
+          effect="rotate"
+          reverse
+          duration={600}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.reverseBox, styles.reverseBox3]}>
+            <Text style={styles.reverseIcon}>🔄</Text>
+            <Text style={styles.reverseText}>Rotate (rev)</Text>
+          </View>
+        </PuffPop>
+      </View>
+
+      {/* Animation Intensity */}
+      <Text style={styles.sectionTitle}>Animation Intensity</Text>
+      <Text style={styles.groupHint}>Control animation drama (0-1)</Text>
+      <View style={styles.intensityContainer}>
+        <PuffPop
+          key={`intensity-1-${key}-${skeletonMode}`}
+          effect="slideUp"
+          intensity={1}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.intensityBox, styles.intensityBox1]}>
+            <Text style={styles.intensityText}>100%</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`intensity-2-${key}-${skeletonMode}`}
+          effect="slideUp"
+          intensity={0.5}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.intensityBox, styles.intensityBox2]}>
+            <Text style={styles.intensityText}>50%</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`intensity-3-${key}-${skeletonMode}`}
+          effect="slideUp"
+          intensity={0.2}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.intensityBox, styles.intensityBox3]}>
+            <Text style={styles.intensityText}>20%</Text>
+          </View>
+        </PuffPop>
+      </View>
+
+      {/* Anchor Point */}
+      <Text style={styles.sectionTitle}>Anchor Point</Text>
+      <Text style={styles.groupHint}>Transform origin for scale/rotate</Text>
+      <View style={styles.anchorContainer}>
+        <PuffPop
+          key={`anchor-1-${key}-${skeletonMode}`}
+          effect="scale"
+          anchorPoint="top"
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.anchorBox, styles.anchorBox1]}>
+            <Text style={styles.anchorText}>Top</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`anchor-2-${key}-${skeletonMode}`}
+          effect="scale"
+          anchorPoint="bottomLeft"
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.anchorBox, styles.anchorBox2]}>
+            <Text style={styles.anchorText}>BL</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`anchor-3-${key}-${skeletonMode}`}
+          effect="rotate"
+          anchorPoint="topLeft"
+          duration={600}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.anchorBox, styles.anchorBox3]}>
+            <Text style={styles.anchorText}>TL</Text>
+          </View>
+        </PuffPop>
+      </View>
+
+      {/* Spring Animation */}
+      <Text style={styles.sectionTitle}>Spring Animation</Text>
+      <Text style={styles.groupHint}>Physics-based spring animations</Text>
+      <View style={styles.springContainer}>
+        <PuffPop
+          key={`spring-1-${key}-${skeletonMode}`}
+          effect="scale"
+          useSpring
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.springBox, styles.springBox1]}>
+            <Text style={styles.springIcon}>🧲</Text>
+            <Text style={styles.springText}>Default</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`spring-2-${key}-${skeletonMode}`}
+          effect="slideUp"
+          useSpring
+          springConfig={{ tension: 150, friction: 8 }}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.springBox, styles.springBox2]}>
+            <Text style={styles.springIcon}>⚡</Text>
+            <Text style={styles.springText}>Snappy</Text>
+          </View>
+        </PuffPop>
+        <PuffPop
+          key={`spring-3-${key}-${skeletonMode}`}
+          effect="scale"
+          useSpring
+          springConfig={{ tension: 200, friction: 5, bounciness: 12 }}
+          duration={500}
+          skeleton={skeletonMode}
+        >
+          <View style={[styles.springBox, styles.springBox3]}>
+            <Text style={styles.springIcon}>🏀</Text>
+            <Text style={styles.springText}>Bouncy</Text>
+          </View>
+        </PuffPop>
+      </View>
+
+      {/* Exit Stagger Animation */}
+      <Text style={styles.sectionTitle}>Exit Stagger Animation</Text>
+      <Text style={styles.groupHint}>Stagger exit animations in groups</Text>
+      <ExitStaggerDemo key={`exit-stagger-${key}-${skeletonMode}`} skeleton={skeletonMode} />
+
       <View style={styles.footer} />
     </ScrollView>
   );
@@ -775,5 +1154,200 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 60,
+  },
+  // Exit Animation styles
+  exitContainer: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  exitDemoContainer: {
+    marginBottom: 12,
+  },
+  exitToggleButton: {
+    backgroundColor: '#2d2d44',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    alignItems: 'center',
+  },
+  exitToggleText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  exitBox: {
+    backgroundColor: '#6c5ce7',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  exitBoxText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  // Custom Initial Values styles
+  customInitialContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  customBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customBox1: {
+    backgroundColor: '#a29bfe',
+  },
+  customBox2: {
+    backgroundColor: '#fd79a8',
+  },
+  customBox3: {
+    backgroundColor: '#fdcb6e',
+  },
+  customIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  customText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  // Reverse Mode styles
+  reverseContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  reverseBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reverseBox1: {
+    backgroundColor: '#55efc4',
+  },
+  reverseBox2: {
+    backgroundColor: '#74b9ff',
+  },
+  reverseBox3: {
+    backgroundColor: '#a29bfe',
+  },
+  reverseIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  reverseText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  // Animation Intensity styles
+  intensityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  intensityBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  intensityBox1: {
+    backgroundColor: '#ff7675',
+  },
+  intensityBox2: {
+    backgroundColor: '#fdcb6e',
+  },
+  intensityBox3: {
+    backgroundColor: '#6c5ce7',
+  },
+  intensityText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // Anchor Point styles
+  anchorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  anchorBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  anchorBox1: {
+    backgroundColor: '#00b894',
+  },
+  anchorBox2: {
+    backgroundColor: '#e17055',
+  },
+  anchorBox3: {
+    backgroundColor: '#0984e3',
+  },
+  anchorText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  // Spring Animation styles
+  springContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  springBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  springBox1: {
+    backgroundColor: '#00cec9',
+  },
+  springBox2: {
+    backgroundColor: '#6c5ce7',
+  },
+  springBox3: {
+    backgroundColor: '#fd79a8',
+  },
+  springIcon: {
+    fontSize: 32,
+    marginBottom: 4,
+  },
+  springText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // Exit Stagger styles
+  exitStaggerContainer: {
+    marginBottom: 20,
+  },
+  exitStaggerButton: {
+    backgroundColor: '#2d2d44',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  exitStaggerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
